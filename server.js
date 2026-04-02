@@ -51,7 +51,8 @@ const folderStorage = multer.diskStorage({
   destination: (req, file, cb) => {
     try {
       const basePath = safe(req.query.path);
-      const relDir = path.dirname(file.originalname);
+      const relPath = file.originalname;
+      const relDir = path.dirname(relPath);
       const destDir = (relDir && relDir !== '.') ? path.join(basePath, relDir) : basePath;
       if (!destDir.startsWith(path.resolve(ROOT_DIR))) return cb(new Error('Access denied'));
       fs.mkdirSync(destDir, { recursive: true });
