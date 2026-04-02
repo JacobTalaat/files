@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Jacob's Files</title>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -109,32 +109,61 @@
   ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
   ::-webkit-scrollbar-thumb:hover{background:var(--dim)}
 
+  /* ── Mobile search bar ── */
+  #mobile-search-row{display:none;padding:8px 12px;background:var(--surface);border-bottom:1px solid var(--border)}
+  #mobile-search-row.open{display:flex;gap:8px;align-items:center;animation:slideDown .15s ease}
+  @keyframes slideDown{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+  #mobile-search-row input{flex:1;background:var(--bg);border:1px solid var(--accent);border-radius:6px;padding:9px 12px;color:var(--text);font-family:var(--font);font-size:16px;outline:none}
+  .clear-srch-btn{background:none;border:none;color:var(--dim);cursor:pointer;font-size:18px;padding:4px 8px;line-height:1;border-radius:4px}
+  .clear-srch-btn:hover{color:var(--text)}
+
+  /* ── FAB ── */
+  #fab-wrap{display:none;position:fixed;flex-direction:column;align-items:flex-end;gap:10px;z-index:300;bottom:calc(24px + env(safe-area-inset-bottom,0px));right:20px}
+  .fab-btn{width:52px;height:52px;border-radius:50%;background:var(--accent);color:#0d1117;border:none;font-size:26px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(88,166,255,.35);transition:transform .2s;font-family:var(--font)}
+  .fab-btn.open{transform:rotate(45deg)}
+  .fab-btn:active{transform:scale(.92)}
+  .fab-menu{display:flex;flex-direction:column;align-items:flex-end;gap:8px;opacity:0;pointer-events:none;transform:translateY(8px);transition:opacity .15s,transform .15s}
+  .fab-menu.open{opacity:1;pointer-events:all;transform:translateY(0)}
+  .fab-item{display:flex;align-items:center;gap:10px;background:var(--surface2);border:1px solid var(--border);border-radius:24px;padding:10px 16px;color:var(--text);font-family:var(--font);font-size:13px;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,.45);white-space:nowrap}
+  .fab-item:active{background:var(--surface)}
+
+  /* ── Search toggle (desktop: hidden) ── */
+  #search-toggle-btn{display:none}
+
   /* --- MOBILE --- */
   #sidebar-toggle{display:none;align-items:center;justify-content:center;background:none;border:none;color:var(--dim);font-size:20px;cursor:pointer;padding:6px 8px;border-radius:6px;flex-shrink:0;line-height:1}
   #sidebar-toggle:hover{background:var(--surface2);color:var(--text)}
   #sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:499;backdrop-filter:blur(2px)}
 
   @media(max-width:640px){
-    /* Viewport fix for iOS Safari */
+    /* Viewport / iOS Safari */
     #app{height:100dvh}
     body{overflow:hidden}
 
     /* Login */
     .login-box{width:92vw;padding:36px 20px}
+    .login-box input[type=password]{font-size:16px}
 
-    /* Modal */
+    /* Modal - prevent iOS zoom */
     .modal{width:92vw;padding:22px 18px}
+    .modal input{font-size:16px}
 
-    /* Toast */
-    .toast{left:12px;right:12px;bottom:12px;min-width:unset}
+    /* Toast - safe area */
+    .toast{left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));min-width:unset}
 
     /* Topbar */
     #sidebar-toggle{display:inline-flex}
-    .topbar{padding:8px 12px;gap:8px}
+    .topbar{padding:8px 12px;gap:6px}
     .topbar-logo{display:none}
     .search-wrap{display:none}
+    #btn-upload-files,#btn-upload-folder,#btn-mkdir{display:none}
+    #search-toggle-btn{display:inline-flex;font-size:18px;padding:8px 10px}
     .btn-ghost{padding:9px 11px;font-size:15px}
     .btn-lbl{display:none}
+
+    /* Breadcrumb - horizontal scroll */
+    .breadcrumb{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;flex-shrink:1}
+    .breadcrumb::-webkit-scrollbar{display:none}
 
     /* Sidebar - slide-in drawer */
     .sidebar{
@@ -146,32 +175,40 @@
     }
     .sidebar.open{transform:translateX(0)}
     #sidebar-backdrop.open{display:block}
+    .sidebar-item{padding:10px 8px;font-size:13px}
 
-    /* File list - hide size/date columns */
+    /* File list - hide size/date columns, bigger touch targets */
     .file-list-header{grid-template-columns:28px 1fr 44px}
-    .file-row{grid-template-columns:28px 1fr 44px;min-height:52px}
+    .file-row{grid-template-columns:28px 1fr 44px;min-height:54px}
+    .file-row:active{background:var(--surface2)}
     .file-size,.file-date{display:none}
     .file-list-header span:nth-child(3),
     .file-list-header span:nth-child(4){display:none}
     .file-icon{font-size:22px}
     .file-name{font-size:14px}
-    .dl-btn{padding:8px;font-size:18px}
+    .dl-btn{padding:0;font-size:18px;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center}
 
     /* Preview - full screen overlay */
-    .preview-panel{
-      position:fixed;inset:0;
-      width:100%;z-index:400;
-    }
+    .preview-panel{position:fixed;inset:0;width:100%;z-index:400}
 
     /* Context menu - bigger touch targets */
-    .ctx-menu{min-width:230px}
+    .ctx-menu{min-width:240px}
     .ctx-item{padding:14px 16px;font-size:14px;gap:14px}
 
     /* Files toolbar */
     .files-toolbar{padding:8px 12px;gap:6px}
+    .view-btn{min-width:36px;min-height:36px}
+    .sort-select{font-size:13px}
 
-    /* File grid - smaller cards */
+    /* File grid */
     .file-grid{grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:6px}
+    .file-card:active{background:var(--surface2)}
+
+    /* FAB - show on mobile */
+    #fab-wrap{display:flex}
+
+    /* Files container - extra bottom padding for FAB */
+    .files-container{padding-bottom:80px}
   }
 </style>
 </head>
@@ -194,12 +231,17 @@
     <span class="topbar-logo">JM/Files</span>
     <div class="breadcrumb" id="breadcrumb"></div>
     <div class="topbar-actions">
-      <div class="search-wrap"><input type="text" id="search-input" placeholder="Filter..." oninput="filterFiles(this.value)"></div>
-      <button class="btn btn-ghost" onclick="triggerUpload(false)">⬆ <span class="btn-lbl">Files</span></button>
-      <button class="btn btn-ghost" onclick="triggerUpload(true)">📁 <span class="btn-lbl">Folder</span></button>
-      <button class="btn btn-ghost" onclick="showMkdir()">+ <span class="btn-lbl">Folder</span></button>
+      <div class="search-wrap"><input type="text" id="search-input" placeholder="Filter..." oninput="filterFiles(this.value)" autocomplete="off"></div>
+      <button class="btn btn-ghost" id="btn-upload-files" onclick="triggerUpload(false)">⬆ <span class="btn-lbl">Files</span></button>
+      <button class="btn btn-ghost" id="btn-upload-folder" onclick="triggerUpload(true)">📁 <span class="btn-lbl">Folder</span></button>
+      <button class="btn btn-ghost" id="btn-mkdir" onclick="showMkdir()">+ <span class="btn-lbl">Folder</span></button>
+      <button class="btn btn-ghost" id="search-toggle-btn" onclick="toggleMobileSearch()" title="Search">⌕</button>
       <button class="btn btn-ghost" onclick="logout()">⏻</button>
     </div>
+  </div>
+  <div id="mobile-search-row">
+    <input type="text" id="search-input-mobile" placeholder="Search files…" oninput="filterFiles(this.value)" autocomplete="off" autocorrect="off" autocapitalize="off">
+    <button class="clear-srch-btn" onclick="clearMobileSearch()" title="Clear">✕</button>
   </div>
   <div class="main">
     <div id="sidebar-backdrop" onclick="toggleSidebar()"></div>
@@ -248,6 +290,14 @@
         </div>
       </div>
     </div>
+  </div>
+  <div id="fab-wrap">
+    <div class="fab-menu" id="fab-menu">
+      <button class="fab-item" onclick="triggerUpload(false);closeFab()">⬆ <span>Upload Files</span></button>
+      <button class="fab-item" onclick="triggerUpload(true);closeFab()">📁 <span>Upload Folder</span></button>
+      <button class="fab-item" onclick="showMkdir();closeFab()">✚ <span>New Folder</span></button>
+    </div>
+    <button class="fab-btn" id="fab-btn" onclick="toggleFab()">＋</button>
   </div>
 </div>
 
@@ -553,7 +603,10 @@ function showCtx(e,name,isDir){
   menu.style.left=Math.min(e.clientX,window.innerWidth-200)+'px';
   menu.style.top=Math.min(e.clientY,window.innerHeight-180)+'px';
 }
-document.addEventListener('click',function(){document.getElementById('ctx-menu').style.display='none';});
+document.addEventListener('click',function(e){
+  document.getElementById('ctx-menu').style.display='none';
+  if(fabOpen&&!e.target.closest('#fab-wrap'))closeFab();
+});
 function ctxDownload(){if(ctxTarget)dlItem(ctxTarget.path,ctxTarget.isDir);}
 function ctxPreview(){if(ctxTarget&&!ctxTarget.isDir)previewFile(ctxTarget.name);}
 function ctxRename(){
@@ -602,6 +655,41 @@ function fmtDate(d){if(!d)return'';return new Date(d).toLocaleDateString('en-US'
 function esc(s){return s.replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function escAttr(s){return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+// ── FAB ───────────────────────────────────────────────────────────────────────
+var fabOpen=false;
+function toggleFab(){
+  fabOpen=!fabOpen;
+  document.getElementById('fab-btn').classList.toggle('open',fabOpen);
+  document.getElementById('fab-menu').classList.toggle('open',fabOpen);
+}
+function closeFab(){
+  if(!fabOpen)return;
+  fabOpen=false;
+  document.getElementById('fab-btn').classList.remove('open');
+  document.getElementById('fab-menu').classList.remove('open');
+}
+
+// ── Mobile search ─────────────────────────────────────────────────────────────
+var mobileSearchOpen=false;
+function toggleMobileSearch(){
+  mobileSearchOpen=!mobileSearchOpen;
+  var row=document.getElementById('mobile-search-row');
+  var btn=document.getElementById('search-toggle-btn');
+  row.classList.toggle('open',mobileSearchOpen);
+  btn.style.color=mobileSearchOpen?'var(--accent)':'';
+  if(mobileSearchOpen){
+    setTimeout(function(){document.getElementById('search-input-mobile').focus();},50);
+  }else{
+    document.getElementById('search-input-mobile').value='';
+    filterFiles('');
+  }
+}
+function clearMobileSearch(){
+  document.getElementById('search-input-mobile').value='';
+  filterFiles('');
+  document.getElementById('search-input-mobile').focus();
+}
 </script>
 </body>
 </html>
