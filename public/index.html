@@ -108,6 +108,71 @@
   ::-webkit-scrollbar-track{background:transparent}
   ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
   ::-webkit-scrollbar-thumb:hover{background:var(--dim)}
+
+  /* --- MOBILE --- */
+  #sidebar-toggle{display:none;align-items:center;justify-content:center;background:none;border:none;color:var(--dim);font-size:20px;cursor:pointer;padding:6px 8px;border-radius:6px;flex-shrink:0;line-height:1}
+  #sidebar-toggle:hover{background:var(--surface2);color:var(--text)}
+  #sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:499;backdrop-filter:blur(2px)}
+
+  @media(max-width:640px){
+    /* Viewport fix for iOS Safari */
+    #app{height:100dvh}
+    body{overflow:hidden}
+
+    /* Login */
+    .login-box{width:92vw;padding:36px 20px}
+
+    /* Modal */
+    .modal{width:92vw;padding:22px 18px}
+
+    /* Toast */
+    .toast{left:12px;right:12px;bottom:12px;min-width:unset}
+
+    /* Topbar */
+    #sidebar-toggle{display:inline-flex}
+    .topbar{padding:8px 12px;gap:8px}
+    .topbar-logo{display:none}
+    .search-wrap{display:none}
+    .btn-ghost{padding:9px 11px;font-size:15px}
+    .btn-lbl{display:none}
+
+    /* Sidebar - slide-in drawer */
+    .sidebar{
+      position:fixed;left:0;top:0;bottom:0;
+      z-index:500;width:260px;
+      transform:translateX(-110%);
+      transition:transform .25s cubic-bezier(.4,0,.2,1);
+      overflow-y:auto;
+    }
+    .sidebar.open{transform:translateX(0)}
+    #sidebar-backdrop.open{display:block}
+
+    /* File list - hide size/date columns */
+    .file-list-header{grid-template-columns:28px 1fr 44px}
+    .file-row{grid-template-columns:28px 1fr 44px;min-height:52px}
+    .file-size,.file-date{display:none}
+    .file-list-header span:nth-child(3),
+    .file-list-header span:nth-child(4){display:none}
+    .file-icon{font-size:22px}
+    .file-name{font-size:14px}
+    .dl-btn{padding:8px;font-size:18px}
+
+    /* Preview - full screen overlay */
+    .preview-panel{
+      position:fixed;inset:0;
+      width:100%;z-index:400;
+    }
+
+    /* Context menu - bigger touch targets */
+    .ctx-menu{min-width:230px}
+    .ctx-item{padding:14px 16px;font-size:14px;gap:14px}
+
+    /* Files toolbar */
+    .files-toolbar{padding:8px 12px;gap:6px}
+
+    /* File grid - smaller cards */
+    .file-grid{grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:6px}
+  }
 </style>
 </head>
 <body>
@@ -125,18 +190,20 @@
 
 <div id="app">
   <div class="topbar">
+    <button id="sidebar-toggle" onclick="toggleSidebar()" title="Menu">☰</button>
     <span class="topbar-logo">JM/Files</span>
     <div class="breadcrumb" id="breadcrumb"></div>
     <div class="topbar-actions">
       <div class="search-wrap"><input type="text" id="search-input" placeholder="Filter..." oninput="filterFiles(this.value)"></div>
-      <button class="btn btn-ghost" onclick="triggerUpload(false)">⬆ Files</button>
-      <button class="btn btn-ghost" onclick="triggerUpload(true)">📁 Folder</button>
-      <button class="btn btn-ghost" onclick="showMkdir()">+ Folder</button>
+      <button class="btn btn-ghost" onclick="triggerUpload(false)">⬆ <span class="btn-lbl">Files</span></button>
+      <button class="btn btn-ghost" onclick="triggerUpload(true)">📁 <span class="btn-lbl">Folder</span></button>
+      <button class="btn btn-ghost" onclick="showMkdir()">+ <span class="btn-lbl">Folder</span></button>
       <button class="btn btn-ghost" onclick="logout()">⏻</button>
     </div>
   </div>
   <div class="main">
-    <div class="sidebar">
+    <div id="sidebar-backdrop" onclick="toggleSidebar()"></div>
+    <div class="sidebar" id="sidebar">
       <div class="sidebar-section">
         <div class="sidebar-label">Quick Access</div>
         <div class="sidebar-item" onclick="navigate('/')">🏠 Home</div>
@@ -213,7 +280,13 @@
 </div>
 
 <script>
-var currentPath='/',allFiles=[],filteredFiles=[],viewMode='list',sortMode='name',selectedFile=null,ctxTarget=null,modalAction=null,toastTimer=null;
+var currentPath='/',allFiles=[],filteredFiles=[],viewMode='list',sortMode='name',selectedFile=null,ctxTarget=null,modalAction=null,toastTimer=null,lpTimer=null;
+function isMobile(){return window.innerWidth<=640;}
+function toggleSidebar(){
+  var s=document.getElementById('sidebar'),b=document.getElementById('sidebar-backdrop');
+  var open=s.classList.toggle('open');
+  b.classList.toggle('open',open);
+}
 
 // AUTH
 function login(){
@@ -236,7 +309,10 @@ function loadFiles(dir){
     .then(function(data){allFiles=data.files||[];applySort();renderFiles();})
     .catch(function(){showEmpty('Error loading files');});
 }
-function navigate(p){loadFiles(p);}
+function navigate(p){
+  if(isMobile()){var s=document.getElementById('sidebar'),b=document.getElementById('sidebar-backdrop');s.classList.remove('open');b.classList.remove('open');}
+  loadFiles(p);
+}
 function refreshFiles(){loadFiles(currentPath);}
 function filterFiles(q){filteredFiles=q?allFiles.filter(function(f){return f.name.toLowerCase().indexOf(q.toLowerCase())>=0;}):[].concat(allFiles);renderFiles();}
 function applySort(){
@@ -261,7 +337,7 @@ function renderFiles(){
     html+='<div class="file-list"><div class="file-list-header"><span></span><span>Name</span><span>Size</span><span>Modified</span><span></span></div>';
     filteredFiles.forEach(function(f){
       var fp=joinPath(currentPath,f.name);
-      html+='<div class="file-row'+(selectedFile===f.name?' selected':'')+'" onclick="selectFile(\''+esc(f.name)+'\')" ondblclick="'+(f.isDir?'navigate(\''+esc(fp)+'\')':'previewFile(\''+esc(f.name)+'\')') +'" oncontextmenu="showCtx(event,\''+esc(f.name)+'\','+f.isDir+')">';
+      html+='<div class="file-row'+(selectedFile===f.name?' selected':'')+'" data-name="'+escAttr(f.name)+'" data-isdir="'+f.isDir+'" onclick="selectFile(\''+esc(f.name)+'\','+f.isDir+',\''+esc(fp)+'\')" ondblclick="'+(f.isDir?'navigate(\''+esc(fp)+'\')':'previewFile(\''+esc(f.name)+'\')') +'" oncontextmenu="showCtx(event,\''+esc(f.name)+'\','+f.isDir+')">';
       html+='<span class="file-icon">'+fileIcon(f.name,f.isDir)+'</span>';
       html+='<span class="file-name'+(f.isDir?' dir':'')+'">'+escHtml(f.name)+'</span>';
       html+='<span class="file-size">'+(f.isDir?'—':fmtSize(f.size))+'</span>';
@@ -274,7 +350,7 @@ function renderFiles(){
     html+='<div class="file-grid">';
     filteredFiles.forEach(function(f){
       var fp=joinPath(currentPath,f.name);
-      html+='<div class="file-card'+(selectedFile===f.name?' selected':'')+'" onclick="selectFile(\''+esc(f.name)+'\')" ondblclick="'+(f.isDir?'navigate(\''+esc(fp)+'\')':'previewFile(\''+esc(f.name)+'\')') +'" oncontextmenu="showCtx(event,\''+esc(f.name)+'\','+f.isDir+')">';
+      html+='<div class="file-card'+(selectedFile===f.name?' selected':'')+'" data-name="'+escAttr(f.name)+'" data-isdir="'+f.isDir+'" onclick="selectFile(\''+esc(f.name)+'\','+f.isDir+',\''+esc(fp)+'\')" ondblclick="'+(f.isDir?'navigate(\''+esc(fp)+'\')':'previewFile(\''+esc(f.name)+'\')') +'" oncontextmenu="showCtx(event,\''+esc(f.name)+'\','+f.isDir+')">';
       html+='<div class="icon">'+fileIcon(f.name,f.isDir)+'</div>';
       html+='<div class="name'+(f.isDir?' dir':'')+'">'+escHtml(f.name)+'</div></div>';
     });
@@ -294,9 +370,23 @@ function attachDrop(c){
   c.ondragover=function(e){e.preventDefault();c.classList.add('drag-over');};
   c.ondragleave=function(e){if(!c.contains(e.relatedTarget))c.classList.remove('drag-over');};
   c.ondrop=function(e){e.preventDefault();c.classList.remove('drag-over');handleDrop(e);};
+  // Long press for context menu on touch devices
+  c.addEventListener('touchstart',function(e){
+    var el=e.target.closest('[data-name]');
+    if(!el)return;
+    lpTimer=setTimeout(function(){
+      var x=e.touches[0].clientX,y=e.touches[0].clientY;
+      showCtx({clientX:x,clientY:y,preventDefault:function(){}},el.dataset.name,el.dataset.isdir==='true');
+    },550);
+  },{passive:true});
+  c.addEventListener('touchend',function(){clearTimeout(lpTimer);},{passive:true});
+  c.addEventListener('touchmove',function(){clearTimeout(lpTimer);},{passive:true});
 }
 
-function selectFile(name){selectedFile=name;renderFiles();}
+function selectFile(name,isDir,fp){
+  if(isMobile()){if(isDir)navigate(fp);else previewFile(name);return;}
+  selectedFile=name;renderFiles();
+}
 function setView(mode){viewMode=mode;document.getElementById('list-btn').classList.toggle('active',mode==='list');document.getElementById('grid-btn').classList.toggle('active',mode==='grid');renderFiles();}
 
 // BREADCRUMB
@@ -511,6 +601,7 @@ function fmtSize(b){if(!b)return'—';if(b<1024)return b+' B';if(b<1048576)retur
 function fmtDate(d){if(!d)return'';return new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'});}
 function esc(s){return s.replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function escAttr(s){return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 </script>
 </body>
 </html>
