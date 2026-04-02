@@ -12,7 +12,7 @@ const PASSWORD = '1242005';
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(session({ secret: 'jacob-files-2026', resave: false, saveUninitialized: false, cookie: { maxAge: 86400000 } }));
+app.use(session({ secret: 'jacob-files-2026', resave: false, saveUninitialized: false, cookie: { maxAge: 86400000, httpOnly: true } }));
 
 const auth = (req, res, next) => req.session.auth ? next() : res.status(401).json({ error: 'Unauthorized' });
 
@@ -42,7 +42,13 @@ app.get('/api/files', auth, (req, res) => {
 });
 
 const fileStorage = multer.diskStorage({
-  destination: (req, file, cb) => { try { cb(null, safe(req.query.path)); } catch(e) { cb(e); } },
+  destination: (req, file, cb) => {
+    try {
+      const dest = safe(req.query.path);
+      fs.mkdirSync(dest, { recursive: true });
+      cb(null, dest);
+    } catch(e) { cb(e); }
+  },
   filename: (req, file, cb) => cb(null, file.originalname)
 });
 app.post('/api/upload', auth, multer({ storage: fileStorage }).array('files'), (req, res) => res.json({ ok: true, count: req.files.length }));
@@ -69,7 +75,7 @@ app.get('/api/download', auth, (req, res) => {
     const filename = path.basename(abs);
     const stat = fs.statSync(abs);
     if (stat.isDirectory()) {
-      res.setHeader('Content-Disposition', 'attachment; filename="' + filename + '.zip"');
+      res.setHeader('Content-Disposition', 'attachment; filename="' + encodeURIComponent(filename + '.zip') + '"');
       res.setHeader('Content-Type', 'application/zip');
       const archive = archiver('zip', { zlib: { level: 6 } });
       archive.on('error', e => { if (!res.headersSent) res.status(500).end(); });
@@ -77,7 +83,7 @@ app.get('/api/download', auth, (req, res) => {
       archive.directory(abs, filename);
       archive.finalize();
     } else {
-      res.setHeader('Content-Disposition', 'attachment; filename="' + filename + '"');
+      res.setHeader('Content-Disposition', 'attachment; filename="' + encodeURIComponent(filename) + '"');
       res.sendFile(abs);
     }
   } catch(e) { res.status(403).json({ error: e.message }); }
@@ -88,7 +94,10 @@ app.get('/api/preview', auth, (req, res) => {
     const abs = safe(req.query.path);
     const stat = fs.statSync(abs);
     if (stat.size > 500000) return res.status(400).json({ error: 'File too large to preview' });
-    res.json({ content: fs.readFileSync(abs, 'utf8') });
+    const buf = fs.readFileSync(abs);
+    // Reject binary files by checking for null bytes in the first 8KB
+    if (buf.slice(0, 8192).indexOf(0) !== -1) return res.status(400).json({ error: 'Binary file cannot be previewed' });
+    res.json({ content: buf.toString('utf8') });
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
