@@ -463,8 +463,13 @@ function showModal(title,val,okLabel,onConfirm){
   setTimeout(function(){input.focus();input.select();},50);
 }
 function closeModal(){document.getElementById('modal').style.display='none';modalAction=null;}
-function modalConfirm(){var val=document.getElementById('modal-input').value.trim();if(!val)return;closeModal();if(modalAction)modalAction(val);}
-
+function modalConfirm(){
+  var val=document.getElementById('modal-input').value.trim();
+  if(!val)return;
+  var action=modalAction;
+  closeModal();
+  if(action)action(val);
+}
 // HELPERS
 function joinPath(base,name){return(base.endsWith('/')?base:base+'/')+name;}
 function getExt(name){var p=name.split('.');return p.length>1?p.pop().toLowerCase():'';}
