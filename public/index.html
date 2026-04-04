@@ -6,243 +6,291 @@
 <title>Jacob's Files</title>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  :root{--bg:#080b0f;--surface:#0d1117;--surface2:#161b22;--border:#21262d;--accent:#58a6ff;--accent2:#3fb950;--danger:#f85149;--text:#e6edf3;--dim:#8b949e;--font:'JetBrains Mono',monospace}
-  body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;overflow:hidden}
-  #login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:radial-gradient(ellipse at 50% 0%,#0d1f3c 0%,var(--bg) 70%)}
-  .login-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:48px 40px;width:380px;box-shadow:0 24px 80px rgba(0,0,0,.6);animation:slideUp .4s ease}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  :root{--bg:#080b0f;--surface:#0d1117;--surface2:#161b22;--border:#21262d;--accent:#58a6ff;--danger:#f85149;--text:#e6edf3;--dim:#8b949e;--font:'JetBrains Mono',monospace;--safe-top:env(safe-area-inset-top,0px);--safe-bot:env(safe-area-inset-bottom,0px);--safe-left:env(safe-area-inset-left,0px);--safe-right:env(safe-area-inset-right,0px)}
+  body{background:var(--bg);color:var(--text);font-family:var(--font);height:100dvh;overflow:hidden}
+
+  /* ── Login ── */
+  #login-screen{display:flex;align-items:center;justify-content:center;height:100dvh;background:radial-gradient(ellipse at 50% 0%,#0d1f3c 0%,var(--bg) 70%)}
+  .login-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:48px 40px;width:min(380px,92vw);box-shadow:0 24px 80px rgba(0,0,0,.6);animation:slideUp .4s ease}
   @keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
   .login-logo{font-size:13px;color:var(--accent);letter-spacing:4px;text-transform:uppercase;margin-bottom:8px}
   .login-title{font-size:24px;font-weight:700;margin-bottom:4px}
   .login-sub{font-size:12px;color:var(--dim);margin-bottom:32px}
-  .login-box input[type=password]{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 16px;color:var(--text);font-family:var(--font);font-size:14px;margin-bottom:12px;outline:none;transition:border-color .2s}
+  .login-box input[type=password]{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 16px;color:var(--text);font-family:var(--font);font-size:16px;margin-bottom:12px;outline:none;transition:border-color .2s;-webkit-appearance:none}
   .login-box input[type=password]:focus{border-color:var(--accent)}
   .login-error{color:var(--danger);font-size:12px;margin-top:8px;display:none}
-  .btn{display:inline-flex;align-items:center;gap:6px;padding:10px 18px;border-radius:8px;border:none;cursor:pointer;font-family:var(--font);font-size:13px;font-weight:500;transition:all .15s}
-  .btn-primary{background:var(--accent);color:#0d1117;width:100%;justify-content:center;padding:12px}
-  .btn-primary:hover{opacity:.85}
+
+  /* ── Buttons ── */
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:10px 18px;border-radius:8px;border:none;cursor:pointer;font-family:var(--font);font-size:13px;font-weight:500;transition:background .15s,opacity .15s;touch-action:manipulation;-webkit-user-select:none;user-select:none}
+  .btn:active{opacity:.7}
+  .btn-primary{background:var(--accent);color:#0d1117;width:100%;justify-content:center;padding:14px}
   .btn-ghost{background:transparent;color:var(--dim);border:1px solid var(--border)}
   .btn-ghost:hover{background:var(--surface2);color:var(--text);border-color:var(--dim)}
-  #app{display:none;flex-direction:column;height:100vh}
-  .topbar{display:flex;align-items:center;gap:10px;padding:10px 20px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap}
-  .topbar-logo{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:3px;text-transform:uppercase}
-  .breadcrumb{display:flex;align-items:center;gap:4px;flex:1;font-size:13px;color:var(--dim);overflow:hidden;min-width:0}
-  .breadcrumb span{cursor:pointer;padding:4px 6px;border-radius:4px;white-space:nowrap}
+
+  /* ── App shell ── */
+  #app{display:none;flex-direction:column;height:100dvh}
+  .topbar{display:flex;align-items:center;gap:8px;padding:10px 20px;padding-top:max(10px,calc(var(--safe-top) + 6px));background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0}
+  .topbar-logo{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:3px;text-transform:uppercase;flex-shrink:0}
+  .breadcrumb{display:flex;align-items:center;gap:4px;flex:1;font-size:13px;color:var(--dim);overflow-x:auto;overflow-y:hidden;min-width:0;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .breadcrumb::-webkit-scrollbar{display:none}
+  .breadcrumb span{cursor:pointer;padding:4px 6px;border-radius:4px;white-space:nowrap;touch-action:manipulation}
   .breadcrumb span:hover{background:var(--surface2);color:var(--text)}
   .breadcrumb span.current{color:var(--text);cursor:default}
   .breadcrumb span.current:hover{background:none}
   .sep{color:var(--border);user-select:none}
-  .topbar-actions{display:flex;gap:8px;flex-shrink:0}
+  .topbar-actions{display:flex;gap:6px;flex-shrink:0}
   .search-wrap{position:relative}
-  .search-wrap input{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:7px 12px 7px 32px;color:var(--text);font-family:var(--font);font-size:12px;width:170px;outline:none;transition:border-color .2s}
+  .search-wrap input{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:7px 12px 7px 32px;color:var(--text);font-family:var(--font);font-size:13px;width:170px;outline:none;transition:border-color .2s}
   .search-wrap input:focus{border-color:var(--accent)}
   .search-wrap::before{content:'⌕';position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--dim);font-size:16px}
   .main{display:flex;flex:1;overflow:hidden}
+
+  /* ── Sidebar ── */
+  #sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:499}
   .sidebar{width:210px;background:var(--surface);border-right:1px solid var(--border);padding:16px 12px;flex-shrink:0;overflow-y:auto}
   .sidebar-section{margin-bottom:20px}
   .sidebar-label{font-size:10px;font-weight:600;color:var(--dim);letter-spacing:2px;text-transform:uppercase;padding:0 8px;margin-bottom:6px}
-  .sidebar-item{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:6px;cursor:pointer;font-size:12px;color:var(--dim);transition:all .15s}
+  .sidebar-item{display:flex;align-items:center;gap:8px;padding:8px;border-radius:6px;cursor:pointer;font-size:12px;color:var(--dim);transition:background .15s;touch-action:manipulation;-webkit-user-select:none;user-select:none}
   .sidebar-item:hover,.sidebar-item.active{background:var(--surface2);color:var(--text)}
+  .sidebar-item:active{background:var(--surface2);color:var(--text)}
+
+  /* ── Files area ── */
   .files-area{flex:1;display:flex;flex-direction:column;overflow:hidden}
   .files-toolbar{display:flex;align-items:center;gap:8px;padding:10px 16px;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0}
   .view-toggle{display:flex;background:var(--bg);border:1px solid var(--border);border-radius:6px;overflow:hidden}
-  .view-btn{padding:5px 10px;background:none;border:none;color:var(--dim);cursor:pointer;font-size:14px;transition:all .15s}
+  .view-btn{padding:6px 12px;background:none;border:none;color:var(--dim);cursor:pointer;font-size:14px;transition:background .1s;touch-action:manipulation;min-width:38px;min-height:34px}
   .view-btn.active{background:var(--surface2);color:var(--text)}
-  .sort-select{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:5px 10px;color:var(--dim);font-family:var(--font);font-size:12px;outline:none;cursor:pointer}
+  .sort-select{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:5px 10px;color:var(--dim);font-family:var(--font);font-size:12px;outline:none;cursor:pointer;touch-action:manipulation}
   .file-count{margin-left:auto;font-size:11px;color:var(--dim)}
   .files-wrap{display:flex;flex:1;overflow:hidden}
-  .files-container{flex:1;overflow-y:auto;padding:16px;position:relative;transition:background .15s}
+  .files-container{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px;position:relative;transition:background .15s}
   .files-container.drag-over{background:rgba(88,166,255,.03);outline:2px dashed var(--accent);outline-offset:-8px}
   .drop-hint{position:absolute;inset:16px;border:2px dashed var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--dim);pointer-events:none;opacity:0;transition:opacity .2s;z-index:5}
   .files-container.drag-over .drop-hint{opacity:1;border-color:var(--accent);color:var(--accent)}
+
+  /* ── List view ── */
   .file-list{width:100%}
   .file-list-header{display:grid;grid-template-columns:28px 1fr 90px 150px 50px;gap:8px;padding:6px 12px;font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border);margin-bottom:4px}
-  .file-row{display:grid;grid-template-columns:28px 1fr 90px 150px 50px;gap:8px;padding:8px 12px;border-radius:6px;cursor:pointer;align-items:center;transition:background .1s;border:1px solid transparent}
+  .file-row{display:grid;grid-template-columns:28px 1fr 90px 150px 50px;gap:8px;padding:8px 12px;border-radius:6px;cursor:pointer;align-items:center;transition:background .1s;border:1px solid transparent;touch-action:manipulation;-webkit-user-select:none;user-select:none}
   .file-row:hover{background:var(--surface2)}
+  .file-row:active{background:var(--surface2)}
   .file-row.selected{background:rgba(88,166,255,.08);border-color:rgba(88,166,255,.2)}
   .file-icon{font-size:18px;text-align:center}
   .file-name{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .file-name.dir{color:var(--accent)}
   .file-size,.file-date{font-size:11px;color:var(--dim)}
-  .dl-btn{background:none;border:none;cursor:pointer;color:var(--dim);font-size:14px;padding:3px 5px;border-radius:4px;transition:all .1s}
-  .dl-btn:hover{color:var(--accent);background:var(--surface2)}
+  .dl-btn{background:none;border:none;cursor:pointer;color:var(--dim);font-size:14px;padding:3px 5px;border-radius:4px;transition:color .1s;touch-action:manipulation;min-width:36px;min-height:36px;display:flex;align-items:center;justify-content:center}
+  .dl-btn:hover{color:var(--accent)}
+
+  /* ── Grid view ── */
   .file-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px}
-  .file-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 10px;text-align:center;cursor:pointer;transition:all .15s}
-  .file-card:hover{background:var(--surface2);border-color:var(--dim);transform:translateY(-1px)}
+  .file-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 10px 12px;text-align:center;cursor:pointer;transition:background .15s,border-color .15s;touch-action:manipulation;-webkit-user-select:none;user-select:none}
+  .file-card:hover{background:var(--surface2);border-color:var(--dim)}
+  .file-card:active{background:var(--surface2)}
   .file-card.selected{border-color:var(--accent);background:rgba(88,166,255,.08)}
-  .file-card .icon{font-size:30px;margin-bottom:8px}
+  .file-card .icon{font-size:34px;margin-bottom:10px}
   .file-card .name{font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--dim)}
   .file-card .name.dir{color:var(--accent)}
+
+  /* ── Empty state ── */
   .empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:300px;color:var(--dim);gap:8px}
   .empty-state .big{font-size:48px;opacity:.3}
   .empty-state p{font-size:13px}
+
+  /* ── Desktop context menu ── */
   .ctx-menu{position:fixed;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:6px;min-width:190px;z-index:1000;box-shadow:0 8px 32px rgba(0,0,0,.6);animation:fadeIn .1s ease}
   @keyframes fadeIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
-  .ctx-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:5px;cursor:pointer;font-size:12px;color:var(--text);transition:background .1s}
+  .ctx-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:5px;cursor:pointer;font-size:12px;color:var(--text);transition:background .1s;touch-action:manipulation}
   .ctx-item:hover{background:var(--surface)}
   .ctx-item.danger{color:var(--danger)}
   .ctx-item.danger:hover{background:rgba(248,81,73,.1)}
   .ctx-sep{height:1px;background:var(--border);margin:4px 0}
-  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:2000;display:flex;align-items:center;justify-content:center}
-  .modal{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px;width:400px;box-shadow:0 24px 80px rgba(0,0,0,.6);animation:slideUp .2s ease}
+
+  /* ── Mobile bottom sheet (context menu) ── */
+  #sheet-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:800}
+  #ctx-sheet{
+    position:fixed;left:0;right:0;bottom:0;z-index:801;
+    background:var(--surface2);border-top:1px solid var(--border);
+    border-radius:20px 20px 0 0;
+    padding:0 0 calc(16px + var(--safe-bot));
+    transform:translateY(100%);
+    transition:transform .28s cubic-bezier(.4,0,.2,1);
+  }
+  #ctx-sheet.open{transform:translateY(0)}
+  .sheet-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:12px auto 4px}
+  .sheet-title{font-size:12px;color:var(--dim);padding:8px 20px 12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border-bottom:1px solid var(--border)}
+  .sheet-item{display:flex;align-items:center;gap:16px;padding:17px 20px;font-size:15px;color:var(--text);cursor:pointer;touch-action:manipulation;transition:background .1s}
+  .sheet-item:active{background:var(--surface)}
+  .sheet-item.danger{color:var(--danger)}
+  .sheet-sep{height:1px;background:var(--border);margin:0 20px}
+
+  /* ── Modal ── */
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:2000;display:flex;align-items:flex-end;justify-content:center}
+  @media(min-width:641px){.modal-overlay{align-items:center}}
+  .modal{background:var(--surface);border:1px solid var(--border);border-radius:12px 12px 0 0;padding:28px 24px calc(24px + var(--safe-bot));width:100%;box-shadow:0 24px 80px rgba(0,0,0,.6);animation:slideUp .2s ease}
+  @media(min-width:641px){.modal{border-radius:12px;width:400px;padding:28px}}
   .modal h3{font-size:16px;margin-bottom:16px}
-  .modal input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px 14px;color:var(--text);font-family:var(--font);font-size:13px;outline:none;margin-bottom:16px;transition:border-color .2s}
+  .modal input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:12px 14px;color:var(--text);font-family:var(--font);font-size:16px;outline:none;margin-bottom:16px;transition:border-color .2s;-webkit-appearance:none}
   .modal input:focus{border-color:var(--accent)}
   .modal-actions{display:flex;gap:8px;justify-content:flex-end}
+
+  /* ── Preview panel ── */
   .preview-panel{width:340px;background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
   .preview-header{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
   .preview-header h4{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;margin-right:8px}
-  .preview-close{background:none;border:none;color:var(--dim);cursor:pointer;font-size:18px}
-  .preview-body{flex:1;overflow:auto;padding:16px}
+  .preview-close{background:none;border:none;color:var(--dim);cursor:pointer;font-size:20px;touch-action:manipulation;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;border-radius:8px}
+  .preview-close:active{background:var(--surface2)}
+  .preview-body{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;padding:16px}
   .preview-body pre{font-size:11px;color:var(--dim);white-space:pre-wrap;word-break:break-word;line-height:1.6}
   .preview-info{display:flex;flex-direction:column;gap:10px}
   .preview-info-row{display:flex;justify-content:space-between;font-size:12px}
   .preview-info-row .label{color:var(--dim)}
   .preview-big-icon{font-size:64px;text-align:center;margin:32px 0 16px}
+
+  /* ── Toast ── */
   .toast{position:fixed;bottom:20px;right:20px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 18px;min-width:280px;box-shadow:0 8px 32px rgba(0,0,0,.5);z-index:3000;display:none;animation:slideUp .3s ease}
   .toast-title{font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px}
   .toast-sub{font-size:11px;color:var(--dim);margin-bottom:10px;min-height:14px}
   .progress-bar{height:3px;background:var(--border);border-radius:2px;overflow:hidden}
   .progress-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .3s}
+
+  /* ── Scrollbar ── */
   ::-webkit-scrollbar{width:6px;height:6px}
   ::-webkit-scrollbar-track{background:transparent}
   ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
-  ::-webkit-scrollbar-thumb:hover{background:var(--dim)}
 
-  /* ── Mobile search bar ── */
+  /* ── Mobile-only elements (hidden on desktop) ── */
+  #btn-back{display:none}
+  #sidebar-toggle{display:none;background:none;border:none;color:var(--dim);font-size:22px;cursor:pointer;padding:6px 8px;border-radius:6px;flex-shrink:0;line-height:1;touch-action:manipulation;min-width:40px;min-height:40px;align-items:center;justify-content:center}
+  #sidebar-toggle:active{background:var(--surface2)}
   #mobile-search-row{display:none;padding:8px 12px;background:var(--surface);border-bottom:1px solid var(--border)}
   #mobile-search-row.open{display:flex;gap:8px;align-items:center;animation:slideDown .15s ease}
   @keyframes slideDown{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
-  #mobile-search-row input{flex:1;background:var(--bg);border:1px solid var(--accent);border-radius:6px;padding:9px 12px;color:var(--text);font-family:var(--font);font-size:16px;outline:none}
-  .clear-srch-btn{background:none;border:none;color:var(--dim);cursor:pointer;font-size:18px;padding:4px 8px;line-height:1;border-radius:4px}
-  .clear-srch-btn:hover{color:var(--text)}
+  #mobile-search-row input{flex:1;background:var(--bg);border:1px solid var(--accent);border-radius:8px;padding:10px 12px;color:var(--text);font-family:var(--font);font-size:16px;outline:none;-webkit-appearance:none}
+  #search-toggle-btn{display:none}
+  .clear-btn{background:none;border:none;color:var(--dim);cursor:pointer;font-size:22px;padding:6px 8px;touch-action:manipulation;line-height:1}
 
   /* ── FAB ── */
-  #fab-wrap{display:none;position:fixed;flex-direction:column;align-items:flex-end;gap:10px;z-index:300;bottom:calc(24px + env(safe-area-inset-bottom,0px));right:20px}
-  .fab-btn{width:52px;height:52px;border-radius:50%;background:var(--accent);color:#0d1117;border:none;font-size:26px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(88,166,255,.35);transition:transform .2s;font-family:var(--font)}
+  #fab-wrap{display:none;position:fixed;flex-direction:column;align-items:flex-end;gap:10px;z-index:300;bottom:calc(24px + var(--safe-bot));right:calc(20px + var(--safe-right))}
+  .fab-btn{width:56px;height:56px;border-radius:50%;background:var(--accent);color:#0d1117;border:none;font-size:28px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(88,166,255,.4);transition:transform .2s;font-family:var(--font);touch-action:manipulation;-webkit-user-select:none;user-select:none}
   .fab-btn.open{transform:rotate(45deg)}
-  .fab-btn:active{transform:scale(.92)}
-  .fab-menu{display:flex;flex-direction:column;align-items:flex-end;gap:8px;opacity:0;pointer-events:none;transform:translateY(8px);transition:opacity .15s,transform .15s}
+  .fab-btn:active:not(.open){transform:scale(.9)}
+  .fab-menu{display:flex;flex-direction:column;align-items:flex-end;gap:10px;opacity:0;pointer-events:none;transform:translateY(10px);transition:opacity .18s,transform .18s}
   .fab-menu.open{opacity:1;pointer-events:all;transform:translateY(0)}
-  .fab-item{display:flex;align-items:center;gap:10px;background:var(--surface2);border:1px solid var(--border);border-radius:24px;padding:10px 16px;color:var(--text);font-family:var(--font);font-size:13px;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,.45);white-space:nowrap}
-  .fab-item:active{background:var(--surface)}
+  .fab-item{display:flex;align-items:center;gap:10px;background:var(--surface2);border:1px solid var(--border);border-radius:24px;padding:12px 18px;color:var(--text);font-family:var(--font);font-size:14px;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,.5);white-space:nowrap;touch-action:manipulation;border:none}
+  .fab-item:active{opacity:.7}
 
-  /* ── Search toggle (desktop: hidden) ── */
-  #search-toggle-btn{display:none}
-
-  /* --- MOBILE --- */
-  #sidebar-toggle{display:none;align-items:center;justify-content:center;background:none;border:none;color:var(--dim);font-size:20px;cursor:pointer;padding:6px 8px;border-radius:6px;flex-shrink:0;line-height:1}
-  #sidebar-toggle:hover{background:var(--surface2);color:var(--text)}
-  #sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:499;backdrop-filter:blur(2px)}
-
+  /* ══════════════════ MOBILE ══════════════════ */
   @media(max-width:640px){
-    /* Viewport / iOS Safari */
-    #app{height:100dvh}
-    body{overflow:hidden}
-
-    /* Login */
-    .login-box{width:92vw;padding:36px 20px}
-    .login-box input[type=password]{font-size:16px}
-
-    /* Modal - prevent iOS zoom */
-    .modal{width:92vw;padding:22px 18px}
-    .modal input{font-size:16px}
-
-    /* Toast - safe area */
-    .toast{left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));min-width:unset}
-
     /* Topbar */
     #sidebar-toggle{display:inline-flex}
-    .topbar{padding:8px 12px;gap:6px}
+    #btn-back{display:flex;align-items:center;justify-content:center;background:none;border:none;color:var(--dim);font-size:20px;cursor:pointer;min-width:40px;min-height:40px;border-radius:8px;flex-shrink:0;touch-action:manipulation}
+    #btn-back:active{background:var(--surface2)}
+    .topbar{padding:8px 12px;padding-top:max(8px,calc(var(--safe-top) + 4px));gap:4px}
     .topbar-logo{display:none}
     .search-wrap{display:none}
     #btn-upload-files,#btn-upload-folder,#btn-mkdir{display:none}
-    #search-toggle-btn{display:inline-flex;font-size:18px;padding:8px 10px}
-    .btn-ghost{padding:9px 11px;font-size:15px}
-    .btn-lbl{display:none}
+    #search-toggle-btn{display:inline-flex;font-size:20px;min-width:40px;min-height:40px;padding:0;align-items:center;justify-content:center;border-radius:8px;touch-action:manipulation}
+    .btn-ghost{padding:0;min-width:40px;min-height:40px;border:none;font-size:20px;border-radius:8px}
+    .btn-ghost:hover{background:var(--surface2)}
+    .breadcrumb{font-size:14px}
 
-    /* Breadcrumb - horizontal scroll */
-    .breadcrumb{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;flex-shrink:1}
-    .breadcrumb::-webkit-scrollbar{display:none}
+    /* Mobile search row */
+    #mobile-search-row{display:none}
 
-    /* Sidebar - slide-in drawer */
+    /* Sidebar drawer */
     .sidebar{
       position:fixed;left:0;top:0;bottom:0;
-      z-index:500;width:260px;
+      z-index:500;width:270px;
       transform:translateX(-110%);
       transition:transform .25s cubic-bezier(.4,0,.2,1);
-      overflow-y:auto;
+      overflow-y:auto;-webkit-overflow-scrolling:touch;
+      padding-top:max(16px,calc(var(--safe-top) + 12px));
+      padding-bottom:calc(16px + var(--safe-bot));
     }
     .sidebar.open{transform:translateX(0)}
     #sidebar-backdrop.open{display:block}
-    .sidebar-item{padding:10px 8px;font-size:13px}
-
-    /* File list - hide size/date columns, bigger touch targets */
-    .file-list-header{grid-template-columns:28px 1fr 44px}
-    .file-row{grid-template-columns:28px 1fr 44px;min-height:54px}
-    .file-row:active{background:var(--surface2)}
-    .file-size,.file-date{display:none}
-    .file-list-header span:nth-child(3),
-    .file-list-header span:nth-child(4){display:none}
-    .file-icon{font-size:22px}
-    .file-name{font-size:14px}
-    .dl-btn{padding:0;font-size:18px;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center}
-
-    /* Preview - full screen overlay */
-    .preview-panel{position:fixed;inset:0;width:100%;z-index:400}
-
-    /* Context menu - bigger touch targets */
-    .ctx-menu{min-width:240px}
-    .ctx-item{padding:14px 16px;font-size:14px;gap:14px}
+    .sidebar-item{padding:13px 10px;font-size:14px}
 
     /* Files toolbar */
     .files-toolbar{padding:8px 12px;gap:6px}
-    .view-btn{min-width:36px;min-height:36px}
-    .sort-select{font-size:13px}
+    .sort-select{font-size:13px;padding:6px 8px}
 
-    /* File grid */
-    .file-grid{grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:6px}
-    .file-card:active{background:var(--surface2)}
+    /* File list - compact for mobile */
+    .file-list-header{grid-template-columns:30px 1fr 44px}
+    .file-row{grid-template-columns:30px 1fr 44px;min-height:58px;padding:10px 12px}
+    .file-size,.file-date{display:none}
+    .file-list-header span:nth-child(3),
+    .file-list-header span:nth-child(4){display:none}
+    .file-icon{font-size:24px}
+    .file-name{font-size:14px}
 
-    /* FAB - show on mobile */
+    /* File grid - comfortable for touch */
+    .file-grid{grid-template-columns:repeat(auto-fill,minmax(95px,1fr));gap:8px}
+    .file-card{padding:18px 8px 14px;border-radius:12px}
+    .file-card .icon{font-size:38px;margin-bottom:10px}
+    .file-card .name{font-size:12px}
+
+    /* Preview - full screen */
+    .preview-panel{position:fixed;inset:0;width:100%;z-index:400}
+    .preview-body{padding-bottom:calc(16px + var(--safe-bot))}
+
+    /* Context menu hidden on mobile (use sheet) */
+    .ctx-menu{display:none!important}
+
+    /* Toast */
+    .toast{left:12px;right:12px;bottom:calc(80px + var(--safe-bot));min-width:unset}
+
+    /* Files container - bottom pad for FAB */
+    .files-container{padding-bottom:calc(88px + var(--safe-bot))}
+
+    /* FAB */
     #fab-wrap{display:flex}
-
-    /* Files container - extra bottom padding for FAB */
-    .files-container{padding-bottom:80px}
   }
 </style>
 </head>
 <body>
 
+<!-- ── Login ── -->
 <div id="login-screen">
   <div class="login-box">
     <div class="login-logo">Jacob's VPS</div>
     <div class="login-title">File Manager</div>
     <div class="login-sub">Enter your password to continue</div>
-    <input type="password" id="pwd-input" placeholder="Password">
+    <input type="password" id="pwd-input" placeholder="Password" autocomplete="current-password">
     <div class="login-error" id="login-error">Wrong password. Try again.</div>
     <button class="btn btn-primary" onclick="login()">Unlock →</button>
   </div>
 </div>
 
+<!-- ── App ── -->
 <div id="app">
   <div class="topbar">
     <button id="sidebar-toggle" onclick="toggleSidebar()" title="Menu">☰</button>
+    <button id="btn-back" onclick="goBack()" title="Back">‹</button>
     <span class="topbar-logo">JM/Files</span>
     <div class="breadcrumb" id="breadcrumb"></div>
     <div class="topbar-actions">
-      <div class="search-wrap"><input type="text" id="search-input" placeholder="Filter..." oninput="filterFiles(this.value)" autocomplete="off"></div>
-      <button class="btn btn-ghost" id="btn-upload-files" onclick="triggerUpload(false)">⬆ <span class="btn-lbl">Files</span></button>
-      <button class="btn btn-ghost" id="btn-upload-folder" onclick="triggerUpload(true)">📁 <span class="btn-lbl">Folder</span></button>
-      <button class="btn btn-ghost" id="btn-mkdir" onclick="showMkdir()">+ <span class="btn-lbl">Folder</span></button>
+      <div class="search-wrap">
+        <input type="text" id="search-input" placeholder="Filter…" oninput="filterFiles(this.value)" autocomplete="off">
+      </div>
+      <button class="btn btn-ghost" id="btn-upload-files" onclick="triggerUpload(false)" title="Upload files">⬆</button>
+      <button class="btn btn-ghost" id="btn-upload-folder" onclick="triggerUpload(true)" title="Upload folder">📁</button>
+      <button class="btn btn-ghost" id="btn-mkdir" onclick="showMkdir()" title="New folder">+</button>
       <button class="btn btn-ghost" id="search-toggle-btn" onclick="toggleMobileSearch()" title="Search">⌕</button>
-      <button class="btn btn-ghost" onclick="logout()">⏻</button>
+      <button class="btn btn-ghost" onclick="logout()" title="Logout">⏻</button>
     </div>
   </div>
+
+  <!-- Mobile search bar (slides down) -->
   <div id="mobile-search-row">
-    <input type="text" id="search-input-mobile" placeholder="Search files…" oninput="filterFiles(this.value)" autocomplete="off" autocorrect="off" autocapitalize="off">
-    <button class="clear-srch-btn" onclick="clearMobileSearch()" title="Clear">✕</button>
+    <input type="text" id="search-input-mobile" placeholder="Search files…"
+      oninput="filterFiles(this.value)"
+      autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    <button class="clear-btn" onclick="clearMobileSearch()">✕</button>
   </div>
+
   <div class="main">
     <div id="sidebar-backdrop" onclick="toggleSidebar()"></div>
     <div class="sidebar" id="sidebar">
@@ -256,16 +304,17 @@
       </div>
       <div class="sidebar-section">
         <div class="sidebar-label">Actions</div>
-        <div class="sidebar-item" onclick="triggerUpload(false)">⬆ Upload Files</div>
-        <div class="sidebar-item" onclick="triggerUpload(true)">📁 Upload Folder</div>
-        <div class="sidebar-item" onclick="showMkdir()">✚ New Folder</div>
+        <div class="sidebar-item" onclick="triggerUpload(false);closeSidebar()">⬆ Upload Files</div>
+        <div class="sidebar-item" onclick="triggerUpload(true);closeSidebar()">📁 Upload Folder</div>
+        <div class="sidebar-item" onclick="showMkdir();closeSidebar()">✚ New Folder</div>
         <div class="sidebar-item" onclick="refreshFiles()">↻ Refresh</div>
       </div>
     </div>
+
     <div class="files-area">
       <div class="files-toolbar">
         <div class="view-toggle">
-          <button class="view-btn active" id="list-btn" onclick="setView('list')">☰</button>
+          <button class="view-btn" id="list-btn" onclick="setView('list')">☰</button>
           <button class="view-btn" id="grid-btn" onclick="setView('grid')">⊞</button>
         </div>
         <select class="sort-select" onchange="sortFiles(this.value)">
@@ -279,7 +328,7 @@
       <div class="files-wrap">
         <div class="files-container" id="files-container">
           <div class="drop-hint">⬆ Drop files or folders to upload</div>
-          <div class="empty-state"><div class="big">📂</div><p>Loading...</p></div>
+          <div class="empty-state"><div class="big">📂</div><p>Loading…</p></div>
         </div>
         <div class="preview-panel" id="preview-panel" style="display:none">
           <div class="preview-header">
@@ -291,16 +340,19 @@
       </div>
     </div>
   </div>
+
+  <!-- FAB (mobile only) -->
   <div id="fab-wrap">
     <div class="fab-menu" id="fab-menu">
-      <button class="fab-item" onclick="triggerUpload(false);closeFab()">⬆ <span>Upload Files</span></button>
-      <button class="fab-item" onclick="triggerUpload(true);closeFab()">📁 <span>Upload Folder</span></button>
-      <button class="fab-item" onclick="showMkdir();closeFab()">✚ <span>New Folder</span></button>
+      <button class="fab-item" onclick="triggerUpload(false);closeFab()">⬆ Upload Files</button>
+      <button class="fab-item" onclick="triggerUpload(true);closeFab()">📁 Upload Folder</button>
+      <button class="fab-item" onclick="showMkdir();closeFab()">✚ New Folder</button>
     </div>
     <button class="fab-btn" id="fab-btn" onclick="toggleFab()">＋</button>
   </div>
 </div>
 
+<!-- Desktop context menu -->
 <div class="ctx-menu" id="ctx-menu" style="display:none">
   <div class="ctx-item" onclick="ctxDownload()">⬇ &nbsp;Download</div>
   <div class="ctx-item" id="ctx-preview-btn" onclick="ctxPreview()">👁 &nbsp;Preview</div>
@@ -309,183 +361,259 @@
   <div class="ctx-item danger" onclick="ctxDelete()">🗑 &nbsp;Delete</div>
 </div>
 
+<!-- Mobile bottom sheet context menu -->
+<div id="sheet-backdrop" onclick="closeSheet()"></div>
+<div id="ctx-sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-title" id="sheet-title"></div>
+  <div class="sheet-item" onclick="ctxDownload();closeSheet()">⬇ &nbsp;Download</div>
+  <div class="sheet-item" id="sheet-preview-btn" onclick="ctxPreview();closeSheet()">👁 &nbsp;Preview</div>
+  <div class="sheet-item" onclick="ctxRename();closeSheet()">✏️ &nbsp;Rename</div>
+  <div class="sheet-sep"></div>
+  <div class="sheet-item danger" onclick="ctxDelete();closeSheet()">🗑 &nbsp;Delete</div>
+</div>
+
+<!-- Modal -->
 <div class="modal-overlay" id="modal" style="display:none" onclick="if(event.target===this)closeModal()">
   <div class="modal">
     <h3 id="modal-title"></h3>
-    <input type="text" id="modal-input" onkeydown="if(event.key==='Enter')modalConfirm()">
+    <input type="text" id="modal-input" onkeydown="if(event.key==='Enter')modalConfirm()"
+      autocomplete="off" autocorrect="off" autocapitalize="off">
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="modalConfirm()" id="modal-ok">OK</button>
+      <button class="btn btn-primary" onclick="modalConfirm()" id="modal-ok" style="width:auto;padding:10px 20px">OK</button>
     </div>
   </div>
 </div>
 
-<input type="file" id="file-input" multiple style="display:none" onchange="uploadFiles(this.files,false)">
+<input type="file" id="file-input"   multiple style="display:none" onchange="uploadFiles(this.files,false)">
 <input type="file" id="folder-input" multiple webkitdirectory style="display:none" onchange="uploadFiles(this.files,true)">
 
 <div class="toast" id="toast">
-  <div class="toast-title" id="toast-title">Uploading...</div>
-  <div class="toast-sub" id="toast-sub"></div>
+  <div class="toast-title" id="toast-title">Uploading…</div>
+  <div class="toast-sub"   id="toast-sub"></div>
   <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
 </div>
 
 <script>
-var currentPath='/',allFiles=[],filteredFiles=[],viewMode='list',sortMode='name',selectedFile=null,ctxTarget=null,modalAction=null,toastTimer=null,lpTimer=null;
-function isMobile(){return window.innerWidth<=640;}
-function toggleSidebar(){
-  var s=document.getElementById('sidebar'),b=document.getElementById('sidebar-backdrop');
-  var open=s.classList.toggle('open');
-  b.classList.toggle('open',open);
-}
+// ── State ─────────────────────────────────────────────────────────────────────
+var currentPath = '/';
+var allFiles = [], filteredFiles = [];
+var viewMode  = window.innerWidth <= 640 ? 'grid' : 'list';
+var sortMode  = 'name';
+var selectedFile = null, ctxTarget = null, modalAction = null;
+var toastTimer = null, lpTimer = null, fabOpen = false, mobileSearchOpen = false;
 
-// AUTH
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function isMobile(){ return window.innerWidth <= 640; }
+function joinPath(base, name){ return (base.endsWith('/') ? base : base + '/') + name; }
+function getExt(name){ var p = name.split('.'); return p.length > 1 ? p.pop().toLowerCase() : ''; }
+function escHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function esc(s){ return s.replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escAttr(s){ return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function fmtSize(b){ if(!b&&b!==0)return'—'; if(b<1024)return b+' B'; if(b<1048576)return(b/1024).toFixed(1)+' KB'; if(b<1073741824)return(b/1048576).toFixed(1)+' MB'; return(b/1073741824).toFixed(1)+' GB'; }
+function fmtDate(d){ if(!d)return''; return new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'}); }
+function fileIcon(name, isDir){
+  if(isDir) return '📁';
+  var e = getExt(name);
+  var m = {js:'📜',ts:'📜',jsx:'⚛️',tsx:'⚛️',py:'🐍',c:'⚙️',cpp:'⚙️',h:'⚙️',java:'☕',go:'🐹',rs:'🦀',rb:'💎',php:'🐘',sh:'🔧',bash:'🔧',html:'🌐',css:'🎨',json:'📋',yaml:'📋',yml:'📋',xml:'📋',md:'📝',txt:'📄',pdf:'📕',doc:'📘',docx:'📘',xls:'📗',xlsx:'📗',zip:'📦',tar:'📦',gz:'📦',rar:'📦',png:'🖼',jpg:'🖼',jpeg:'🖼',gif:'🖼',svg:'🖼',mp4:'🎬',mov:'🎬',mp3:'🎵',wav:'🎵',sql:'🗄️',db:'🗄️',env:'🔐',pem:'🔐',key:'🔐'};
+  return m[e] || '📄';
+}
+function setViewUI(){
+  document.getElementById('list-btn').classList.toggle('active', viewMode === 'list');
+  document.getElementById('grid-btn').classList.toggle('active', viewMode === 'grid');
+}
+setViewUI();
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+function showToast(title, sub, pct){
+  clearTimeout(toastTimer);
+  document.getElementById('toast-title').textContent = title;
+  document.getElementById('toast-sub').textContent   = sub || '';
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('toast').style.display = 'block';
+}
+function autoHideToast(){ toastTimer = setTimeout(function(){ document.getElementById('toast').style.display='none'; document.getElementById('progress-fill').style.width='0%'; }, 2500); }
+
+// ── Auth ──────────────────────────────────────────────────────────────────────
 function login(){
-  var pwd=document.getElementById('pwd-input').value;
-  fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pwd})})
+  var pwd = document.getElementById('pwd-input').value;
+  fetch('/api/login', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({password:pwd})})
     .then(function(r){
-      if(r.ok){document.getElementById('login-screen').style.display='none';document.getElementById('app').style.display='flex';loadFiles('/');}
-      else document.getElementById('login-error').style.display='block';
-    });
+      if(r.ok){ document.getElementById('login-screen').style.display='none'; document.getElementById('app').style.display='flex'; loadFiles('/'); }
+      else document.getElementById('login-error').style.display = 'block';
+    }).catch(function(){ document.getElementById('login-error').style.display = 'block'; });
 }
-document.getElementById('pwd-input').addEventListener('keydown',function(e){if(e.key==='Enter')login();});
-function logout(){fetch('/api/logout',{method:'POST'}).then(function(){document.getElementById('login-screen').style.display='flex';document.getElementById('app').style.display='none';document.getElementById('pwd-input').value='';});}
-fetch('/api/check').then(function(r){return r.json();}).then(function(d){if(d.auth){document.getElementById('login-screen').style.display='none';document.getElementById('app').style.display='flex';loadFiles('/');}});
+document.getElementById('pwd-input').addEventListener('keydown', function(e){ if(e.key==='Enter') login(); });
+function logout(){ fetch('/api/logout',{method:'POST'}).then(function(){ document.getElementById('login-screen').style.display='flex'; document.getElementById('app').style.display='none'; document.getElementById('pwd-input').value=''; }); }
+fetch('/api/check').then(function(r){ return r.json(); }).then(function(d){ if(d.auth){ document.getElementById('login-screen').style.display='none'; document.getElementById('app').style.display='flex'; loadFiles('/'); } });
 
-// FILES
+// ── Sidebar ───────────────────────────────────────────────────────────────────
+function toggleSidebar(){
+  var s = document.getElementById('sidebar'), b = document.getElementById('sidebar-backdrop');
+  var open = s.classList.toggle('open');
+  b.classList.toggle('open', open);
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-backdrop').classList.remove('open');
+}
+
+// ── Navigation ────────────────────────────────────────────────────────────────
+function navigate(p){ closeSidebar(); loadFiles(p); }
+function refreshFiles(){ loadFiles(currentPath); }
+function goBack(){
+  var parts = currentPath.split('/').filter(Boolean);
+  parts.pop();
+  navigate('/' + parts.join('/') || '/');
+}
+
 function loadFiles(dir){
-  currentPath=dir;updateBreadcrumb();updateSidebar();closePreview();
-  fetch('/api/files?path='+encodeURIComponent(dir))
-    .then(function(r){return r.json();})
-    .then(function(data){allFiles=data.files||[];applySort();renderFiles();})
-    .catch(function(){showEmpty('Error loading files');});
+  currentPath = dir;
+  updateBreadcrumb();
+  updateSidebar();
+  updateBackBtn();
+  closePreview();
+  fetch('/api/files?path=' + encodeURIComponent(dir))
+    .then(function(r){ return r.json(); })
+    .then(function(data){ allFiles = data.files || []; applySort(); renderFiles(); })
+    .catch(function(){ showEmpty('Error loading files'); });
 }
-function navigate(p){
-  if(isMobile()){var s=document.getElementById('sidebar'),b=document.getElementById('sidebar-backdrop');s.classList.remove('open');b.classList.remove('open');}
-  loadFiles(p);
+
+function updateBackBtn(){
+  var btn = document.getElementById('btn-back');
+  btn.style.display = (isMobile() && currentPath !== '/') ? 'flex' : 'none';
 }
-function refreshFiles(){loadFiles(currentPath);}
-function filterFiles(q){filteredFiles=q?allFiles.filter(function(f){return f.name.toLowerCase().indexOf(q.toLowerCase())>=0;}):[].concat(allFiles);renderFiles();}
+
+// ── Files ─────────────────────────────────────────────────────────────────────
+function filterFiles(q){
+  filteredFiles = q ? allFiles.filter(function(f){ return f.name.toLowerCase().indexOf(q.toLowerCase()) >= 0; }) : [].concat(allFiles);
+  renderFiles();
+}
 function applySort(){
-  filteredFiles=[].concat(allFiles);
-  filteredFiles.sort(function(a,b){
-    if(a.isDir!==b.isDir)return a.isDir?-1:1;
-    if(sortMode==='name')return a.name.localeCompare(b.name);
-    if(sortMode==='size')return(b.size||0)-(a.size||0);
-    if(sortMode==='date')return new Date(b.modified)-new Date(a.modified);
-    if(sortMode==='type')return getExt(a.name).localeCompare(getExt(b.name));
+  filteredFiles = [].concat(allFiles);
+  filteredFiles.sort(function(a, b){
+    if(a.isDir !== b.isDir) return a.isDir ? -1 : 1;
+    if(sortMode==='name') return a.name.localeCompare(b.name);
+    if(sortMode==='size') return (b.size||0) - (a.size||0);
+    if(sortMode==='date') return new Date(b.modified) - new Date(a.modified);
+    if(sortMode==='type') return getExt(a.name).localeCompare(getExt(b.name));
     return 0;
   });
 }
-function sortFiles(mode){sortMode=mode;applySort();renderFiles();}
+function sortFiles(mode){ sortMode = mode; applySort(); renderFiles(); }
 
 function renderFiles(){
-  var c=document.getElementById('files-container');
-  document.getElementById('file-count').textContent=filteredFiles.length+' items';
-  if(!filteredFiles.length){showEmpty('Empty folder');return;}
-  var html='<div class="drop-hint">⬆ Drop files or folders to upload</div>';
-  if(viewMode==='list'){
-    html+='<div class="file-list"><div class="file-list-header"><span></span><span>Name</span><span>Size</span><span>Modified</span><span></span></div>';
+  var c = document.getElementById('files-container');
+  document.getElementById('file-count').textContent = filteredFiles.length + ' items';
+  if(!filteredFiles.length){ showEmpty('Empty folder'); return; }
+  var html = '<div class="drop-hint">⬆ Drop files or folders to upload</div>';
+  if(viewMode === 'list'){
+    html += '<div class="file-list"><div class="file-list-header"><span></span><span>Name</span><span>Size</span><span>Modified</span><span></span></div>';
     filteredFiles.forEach(function(f){
-      var fp=joinPath(currentPath,f.name);
-      html+='<div class="file-row'+(selectedFile===f.name?' selected':'')+'" data-name="'+escAttr(f.name)+'" data-isdir="'+f.isDir+'" onclick="selectFile(\''+esc(f.name)+'\','+f.isDir+',\''+esc(fp)+'\')" ondblclick="'+(f.isDir?'navigate(\''+esc(fp)+'\')':'previewFile(\''+esc(f.name)+'\')') +'" oncontextmenu="showCtx(event,\''+esc(f.name)+'\','+f.isDir+')">';
-      html+='<span class="file-icon">'+fileIcon(f.name,f.isDir)+'</span>';
-      html+='<span class="file-name'+(f.isDir?' dir':'')+'">'+escHtml(f.name)+'</span>';
-      html+='<span class="file-size">'+(f.isDir?'—':fmtSize(f.size))+'</span>';
-      html+='<span class="file-date">'+fmtDate(f.modified)+'</span>';
-      html+='<span><button class="dl-btn" onclick="event.stopPropagation();dlItem(\''+esc(fp)+'\','+f.isDir+')" title="'+(f.isDir?'Download as ZIP':'Download')+'">⬇</button></span>';
-      html+='</div>';
+      var fp = joinPath(currentPath, f.name);
+      html += '<div class="file-row' + (selectedFile===f.name?' selected':'') + '"'
+            + ' data-name="' + escAttr(f.name) + '" data-isdir="' + f.isDir + '"'
+            + ' onclick="selectFile(\'' + esc(f.name) + '\',' + f.isDir + ',\'' + esc(fp) + '\')"'
+            + ' ondblclick="' + (f.isDir ? 'navigate(\'' + esc(fp) + '\')' : 'previewFile(\'' + esc(f.name) + '\')') + '"'
+            + ' oncontextmenu="showCtx(event,\'' + esc(f.name) + '\',' + f.isDir + ')">';
+      html += '<span class="file-icon">' + fileIcon(f.name, f.isDir) + '</span>';
+      html += '<span class="file-name' + (f.isDir?' dir':'') + '">' + escHtml(f.name) + '</span>';
+      html += '<span class="file-size">' + (f.isDir ? '—' : fmtSize(f.size)) + '</span>';
+      html += '<span class="file-date">' + fmtDate(f.modified) + '</span>';
+      html += '<span><button class="dl-btn" onclick="event.stopPropagation();dlItem(\'' + esc(fp) + '\',' + f.isDir + ')" title="Download">⬇</button></span>';
+      html += '</div>';
     });
-    html+='</div>';
-  }else{
-    html+='<div class="file-grid">';
+    html += '</div>';
+  } else {
+    html += '<div class="file-grid">';
     filteredFiles.forEach(function(f){
-      var fp=joinPath(currentPath,f.name);
-      html+='<div class="file-card'+(selectedFile===f.name?' selected':'')+'" data-name="'+escAttr(f.name)+'" data-isdir="'+f.isDir+'" onclick="selectFile(\''+esc(f.name)+'\','+f.isDir+',\''+esc(fp)+'\')" ondblclick="'+(f.isDir?'navigate(\''+esc(fp)+'\')':'previewFile(\''+esc(f.name)+'\')') +'" oncontextmenu="showCtx(event,\''+esc(f.name)+'\','+f.isDir+')">';
-      html+='<div class="icon">'+fileIcon(f.name,f.isDir)+'</div>';
-      html+='<div class="name'+(f.isDir?' dir':'')+'">'+escHtml(f.name)+'</div></div>';
+      var fp = joinPath(currentPath, f.name);
+      html += '<div class="file-card' + (selectedFile===f.name?' selected':'') + '"'
+            + ' data-name="' + escAttr(f.name) + '" data-isdir="' + f.isDir + '"'
+            + ' onclick="selectFile(\'' + esc(f.name) + '\',' + f.isDir + ',\'' + esc(fp) + '\')"'
+            + ' ondblclick="' + (f.isDir ? 'navigate(\'' + esc(fp) + '\')' : 'previewFile(\'' + esc(f.name) + '\')') + '"'
+            + ' oncontextmenu="showCtx(event,\'' + esc(f.name) + '\',' + f.isDir + ')">';
+      html += '<div class="icon">' + fileIcon(f.name, f.isDir) + '</div>';
+      html += '<div class="name' + (f.isDir?' dir':'') + '">' + escHtml(f.name) + '</div></div>';
     });
-    html+='</div>';
+    html += '</div>';
   }
-  c.innerHTML=html;
+  c.innerHTML = html;
   attachDrop(c);
 }
 
 function showEmpty(msg){
-  var c=document.getElementById('files-container');
-  c.innerHTML='<div class="drop-hint">⬆ Drop files or folders to upload</div><div class="empty-state"><div class="big">📭</div><p>'+msg+'</p></div>';
+  var c = document.getElementById('files-container');
+  c.innerHTML = '<div class="drop-hint">⬆ Drop files or folders to upload</div><div class="empty-state"><div class="big">📭</div><p>' + escHtml(msg) + '</p></div>';
   attachDrop(c);
 }
 
-function attachDrop(c){
-  c.ondragover=function(e){e.preventDefault();c.classList.add('drag-over');};
-  c.ondragleave=function(e){if(!c.contains(e.relatedTarget))c.classList.remove('drag-over');};
-  c.ondrop=function(e){e.preventDefault();c.classList.remove('drag-over');handleDrop(e);};
-  // Long press for context menu on touch devices
-  c.addEventListener('touchstart',function(e){
-    var el=e.target.closest('[data-name]');
-    if(!el)return;
-    lpTimer=setTimeout(function(){
-      var x=e.touches[0].clientX,y=e.touches[0].clientY;
-      showCtx({clientX:x,clientY:y,preventDefault:function(){}},el.dataset.name,el.dataset.isdir==='true');
-    },550);
-  },{passive:true});
-  c.addEventListener('touchend',function(){clearTimeout(lpTimer);},{passive:true});
-  c.addEventListener('touchmove',function(){clearTimeout(lpTimer);},{passive:true});
+function selectFile(name, isDir, fp){
+  if(isMobile()){ if(isDir) navigate(fp); else previewFile(name); return; }
+  selectedFile = name; renderFiles();
 }
+function setView(mode){ viewMode = mode; setViewUI(); renderFiles(); }
 
-function selectFile(name,isDir,fp){
-  if(isMobile()){if(isDir)navigate(fp);else previewFile(name);return;}
-  selectedFile=name;renderFiles();
-}
-function setView(mode){viewMode=mode;document.getElementById('list-btn').classList.toggle('active',mode==='list');document.getElementById('grid-btn').classList.toggle('active',mode==='grid');renderFiles();}
-
-// BREADCRUMB
+// ── Breadcrumb / Sidebar state ────────────────────────────────────────────────
 function updateBreadcrumb(){
-  var parts=currentPath.split('/').filter(Boolean),html='<span onclick="navigate(\'/\')">~</span>',built='';
-  parts.forEach(function(p,i){
-    built+='/'+p;
-    var pp=built;
-    html+='<span class="sep">/</span>'+(i===parts.length-1?'<span class="current">'+escHtml(p)+'</span>':'<span onclick="navigate(\''+esc(pp)+'\')">'+escHtml(p)+'</span>');
+  var parts = currentPath.split('/').filter(Boolean), html = '<span onclick="navigate(\'/\')">~</span>', built = '';
+  parts.forEach(function(p, i){
+    built += '/' + p; var pp = built;
+    html += '<span class="sep">/</span>' + (i === parts.length - 1
+      ? '<span class="current">' + escHtml(p) + '</span>'
+      : '<span onclick="navigate(\'' + esc(pp) + '\')">' + escHtml(p) + '</span>');
   });
-  document.getElementById('breadcrumb').innerHTML=html;
+  document.getElementById('breadcrumb').innerHTML = html;
+  // Scroll breadcrumb to end to show current folder
+  var bc = document.getElementById('breadcrumb');
+  setTimeout(function(){ bc.scrollLeft = bc.scrollWidth; }, 10);
 }
 function updateSidebar(){
   document.querySelectorAll('.sidebar-item').forEach(function(el){
-    el.classList.toggle('active',(el.getAttribute('onclick')||'').indexOf("'"+currentPath+"'")>=0);
+    el.classList.toggle('active', (el.getAttribute('onclick')||'').indexOf("'"+currentPath+"'") >= 0);
   });
 }
 
-// DRAG & DROP HANDLER (supports folders)
+// ── Drag & drop ───────────────────────────────────────────────────────────────
+function attachDrop(c){
+  c.ondragover  = function(e){ e.preventDefault(); c.classList.add('drag-over'); };
+  c.ondragleave = function(e){ if(!c.contains(e.relatedTarget)) c.classList.remove('drag-over'); };
+  c.ondrop      = function(e){ e.preventDefault(); c.classList.remove('drag-over'); handleDrop(e); };
+  // Long press → context menu (direct assignment prevents listener stacking on re-render)
+  c.ontouchstart = function(e){
+    var el = e.target.closest('[data-name]'); if(!el) return;
+    lpTimer = setTimeout(function(){
+      showCtx({clientX: e.touches[0].clientX, clientY: e.touches[0].clientY, preventDefault: function(){}}, el.dataset.name, el.dataset.isdir === 'true');
+    }, 500);
+  };
+  c.ontouchend  = function(){ clearTimeout(lpTimer); };
+  c.ontouchmove = function(){ clearTimeout(lpTimer); };
+}
+
 function handleDrop(e){
-  var items=e.dataTransfer.items;
-  if(!items||!items.length){uploadFiles(e.dataTransfer.files,false);return;}
-  var collected=[],promises=[];
-  function readEntry(entry,basePath){
+  var items = e.dataTransfer.items;
+  if(!items || !items.length){ uploadFiles(e.dataTransfer.files, false); return; }
+  var collected = [], promises = [];
+  function readEntry(entry, basePath){
     if(entry.isFile){
       return new Promise(function(resolve){
         entry.file(function(f){
-          var relPath=basePath+f.name;
-          var blob=f.slice(0,f.size,f.type);
-          var file=new File([blob],relPath,{type:f.type,lastModified:f.lastModified});
-          file._rel=relPath;
-          collected.push(file);
-          resolve();
+          var relPath = basePath + f.name;
+          var file = new File([f], relPath, {type: f.type, lastModified: f.lastModified});
+          file._rel = relPath; collected.push(file); resolve();
         });
       });
-    }else if(entry.isDirectory){
+    } else if(entry.isDirectory){
       return new Promise(function(resolve){
-        var reader=entry.createReader();
-        var allEntries=[];
+        var reader = entry.createReader(), all = [];
         function readBatch(){
           reader.readEntries(function(batch){
             if(!batch.length){
-              var p=Promise.resolve();
-              allEntries.forEach(function(ent){p=p.then(function(){return readEntry(ent,basePath+entry.name+'/');});});
+              var p = Promise.resolve();
+              all.forEach(function(ent){ p = p.then(function(){ return readEntry(ent, basePath + entry.name + '/'); }); });
               p.then(resolve);
-            }else{
-              allEntries=allEntries.concat(Array.from(batch));
-              readBatch();
-            }
+            } else { all = all.concat(Array.from(batch)); readBatch(); }
           });
         }
         readBatch();
@@ -493,203 +621,210 @@ function handleDrop(e){
     }
     return Promise.resolve();
   }
-  for(var i=0;i<items.length;i++){
-    var entry=items[i].webkitGetAsEntry&&items[i].webkitGetAsEntry();
-    if(entry)promises.push(readEntry(entry,''));
+  for(var i = 0; i < items.length; i++){
+    var entry = items[i].webkitGetAsEntry && items[i].webkitGetAsEntry();
+    if(entry) promises.push(readEntry(entry, ''));
   }
   Promise.all(promises).then(function(){
-    if(collected.length>0)uploadDropped(collected);
-    else uploadFiles(e.dataTransfer.files,false);
+    if(collected.length > 0) uploadDropped(collected);
+    else uploadFiles(e.dataTransfer.files, false);
   });
 }
 
+// ── Upload ────────────────────────────────────────────────────────────────────
 function uploadDropped(files){
-  var i=0;
+  var i = 0;
   function next(){
-    if(i>=files.length){showToast('✓ Uploaded '+files.length+' file(s)','',100);autoHideToast();refreshFiles();return;}
-    var f=files[i];
-    var relPath=f._rel||f.name;
-    var parts=relPath.split('/');parts.pop();
-    var relDir=parts.join('/');
-    var destPath=relDir?(currentPath.replace(/\/$/,'')+'/'+relDir):currentPath;
-    showToast('Uploading '+f.name,''+(i+1)+' of '+files.length,Math.round(i/files.length*100));
-    var fd=new FormData();fd.append('files',f);
-    fetch('/api/upload?path='+encodeURIComponent(destPath),{method:'POST',body:fd})
-      .then(function(r){if(!r.ok)throw new Error();i++;next();})
-      .catch(function(){showToast('✗ Failed on '+f.name,'',0);autoHideToast();});
+    if(i >= files.length){ showToast('✓ Uploaded ' + files.length + ' file(s)', '', 100); autoHideToast(); refreshFiles(); return; }
+    var f = files[i];
+    var parts = (f._rel || f.name).split('/'); parts.pop();
+    var relDir = parts.join('/');
+    var destPath = relDir ? (currentPath.replace(/\/$/, '') + '/' + relDir) : currentPath;
+    showToast('Uploading…', (i+1) + ' of ' + files.length, Math.round(i / files.length * 100));
+    var fd = new FormData(); fd.append('files', f);
+    fetch('/api/upload?path=' + encodeURIComponent(destPath), {method:'POST', body:fd})
+      .then(function(r){ if(!r.ok) throw new Error(); i++; next(); })
+      .catch(function(){ showToast('✗ Failed: ' + f.name, '', 0); autoHideToast(); });
   }
   next();
 }
 
 function triggerUpload(isFolder){
-  if(isFolder)document.getElementById('folder-input').click();
+  if(isFolder) document.getElementById('folder-input').click();
   else document.getElementById('file-input').click();
 }
 
-function uploadFiles(files,isFolder){
-  if(!files||!files.length)return;
-  var fileArr=Array.from(files);
+function uploadFiles(files, isFolder){
+  if(!files || !files.length) return;
+  var fileArr = Array.from(files), i = 0;
   if(isFolder){
-    var folderName=fileArr[0].webkitRelativePath.split('/')[0];
-    showToast('Uploading folder: '+folderName,''+fileArr.length+' files',20);
-    var i=0;
+    var folderName = fileArr[0].webkitRelativePath.split('/')[0];
+    showToast('Uploading folder: ' + folderName, fileArr.length + ' files', 10);
     function nextFolder(){
-      if(i>=fileArr.length){showToast('✓ Uploaded folder ('+fileArr.length+' files)','',100);autoHideToast();refreshFiles();return;}
-      var f=fileArr[i];
-      var parts=f.webkitRelativePath.split('/');parts.pop();
-      var relDir=parts.join('/');
-      var destPath=relDir?(currentPath.replace(/\/$/,'')+'/'+relDir):currentPath;
-      var fd=new FormData();fd.append('files',f);
-      fetch('/api/upload?path='+encodeURIComponent(destPath),{method:'POST',body:fd})
-        .then(function(r){if(!r.ok)throw new Error();i++;nextFolder();})
-        .catch(function(){showToast('✗ Failed on '+f.name,'',0);autoHideToast();});
+      if(i >= fileArr.length){ showToast('✓ Uploaded folder (' + fileArr.length + ' files)', '', 100); autoHideToast(); refreshFiles(); return; }
+      var f = fileArr[i];
+      var parts = f.webkitRelativePath.split('/'); parts.pop();
+      var relDir = parts.join('/');
+      var destPath = relDir ? (currentPath.replace(/\/$/, '') + '/' + relDir) : currentPath;
+      var fd = new FormData(); fd.append('files', f);
+      fetch('/api/upload?path=' + encodeURIComponent(destPath), {method:'POST', body:fd})
+        .then(function(r){ if(!r.ok) throw new Error(); i++; nextFolder(); })
+        .catch(function(){ showToast('✗ Failed: ' + f.name, '', 0); autoHideToast(); });
     }
     nextFolder();
-  }else{
-    var i=0;
+  } else {
     function next(){
-      if(i>=fileArr.length){showToast('✓ Uploaded '+fileArr.length+' file(s)','',100);autoHideToast();refreshFiles();return;}
-      var f=fileArr[i];
-      showToast('Uploading '+f.name,''+(i+1)+' of '+fileArr.length,Math.round(i/fileArr.length*100));
-      var fd=new FormData();fd.append('files',f);
-      fetch('/api/upload?path='+encodeURIComponent(currentPath),{method:'POST',body:fd}).then(function(r){if(!r.ok)throw new Error('Upload failed');i++;next();}).catch(function(){showToast('✗ Failed on '+f.name,'',0);autoHideToast();});
+      if(i >= fileArr.length){ showToast('✓ Uploaded ' + fileArr.length + ' file(s)', '', 100); autoHideToast(); refreshFiles(); return; }
+      var f = fileArr[i];
+      showToast('Uploading ' + f.name, (i+1) + ' of ' + fileArr.length, Math.round(i / fileArr.length * 100));
+      var fd = new FormData(); fd.append('files', f);
+      fetch('/api/upload?path=' + encodeURIComponent(currentPath), {method:'POST', body:fd})
+        .then(function(r){ if(!r.ok) throw new Error(); i++; next(); })
+        .catch(function(){ showToast('✗ Failed: ' + f.name, '', 0); autoHideToast(); });
     }
     next();
   }
-  document.getElementById('file-input').value='';
-  document.getElementById('folder-input').value='';
+  document.getElementById('file-input').value   = '';
+  document.getElementById('folder-input').value = '';
 }
 
-// DOWNLOAD
-function dlItem(filePath,isDir){
-  if(isDir){showToast('Zipping folder...','This may take a moment for large folders',70);setTimeout(function(){document.getElementById('toast').style.display='none';},4000);}
-  var a=document.createElement('a');a.href='/api/download?path='+encodeURIComponent(filePath);a.download='';document.body.appendChild(a);a.click();document.body.removeChild(a);
+// ── Download ──────────────────────────────────────────────────────────────────
+function dlItem(filePath, isDir){
+  if(isDir){ showToast('Zipping folder…', 'This may take a moment', 70); autoHideToast(); }
+  var a = document.createElement('a'); a.href = '/api/download?path=' + encodeURIComponent(filePath); a.download = ''; document.body.appendChild(a); a.click(); document.body.removeChild(a);
 }
 
-// TOAST
-function showToast(title,sub,pct){
-  clearTimeout(toastTimer);
-  document.getElementById('toast-title').textContent=title;
-  document.getElementById('toast-sub').textContent=sub||'';
-  document.getElementById('progress-fill').style.width=pct+'%';
-  document.getElementById('toast').style.display='block';
-}
-function autoHideToast(){toastTimer=setTimeout(function(){document.getElementById('toast').style.display='none';document.getElementById('progress-fill').style.width='0%';},2500);}
-
-// PREVIEW
+// ── Preview ───────────────────────────────────────────────────────────────────
 function previewFile(name){
-  var filePath=joinPath(currentPath,name);
-  document.getElementById('preview-name').textContent=name;
-  var panel=document.getElementById('preview-panel');panel.style.display='flex';panel.style.flexDirection='column';
-  var body=document.getElementById('preview-body');
-  var textExts=['txt','md','js','ts','jsx','tsx','py','c','cpp','h','java','sh','bash','json','yaml','yml','env','gitignore','css','html','xml','sql','go','rs','php','rb','toml','ini','cfg','makefile'];
-  var e=getExt(name);
-  if(textExts.indexOf(e)>=0||name.charAt(0)==='.'){
-    body.innerHTML='<pre style="color:var(--dim)">Loading...</pre>';
-    fetch('/api/preview?path='+encodeURIComponent(filePath)).then(function(r){return r.json();}).then(function(d){body.innerHTML='<pre>'+escHtml(d.content)+'</pre>';}).catch(function(){body.innerHTML='<pre>Could not preview</pre>';});
-  }else{
-    var file=allFiles.find(function(f){return f.name===name;});
-    body.innerHTML='<div class="preview-big-icon">'+fileIcon(name,false)+'</div><div class="preview-info"><div class="preview-info-row"><span class="label">Name</span><span>'+escHtml(name)+'</span></div><div class="preview-info-row"><span class="label">Type</span><span>.'+e+'</span></div>'+(file?'<div class="preview-info-row"><span class="label">Size</span><span>'+fmtSize(file.size)+'</span></div><div class="preview-info-row"><span class="label">Modified</span><span>'+fmtDate(file.modified)+'</span></div>':'')+'</div><br><button class="btn btn-primary" style="width:100%" onclick="dlItem(\''+esc(filePath)+'\',false)">⬇ Download</button>';
+  var filePath = joinPath(currentPath, name);
+  document.getElementById('preview-name').textContent = name;
+  var panel = document.getElementById('preview-panel'); panel.style.display = 'flex'; panel.style.flexDirection = 'column';
+  var body = document.getElementById('preview-body');
+  var textExts = ['txt','md','js','ts','jsx','tsx','py','c','cpp','h','java','sh','bash','json','yaml','yml','env','gitignore','css','html','xml','sql','go','rs','php','rb','toml','ini','cfg','makefile','lock'];
+  var e = getExt(name);
+  if(textExts.indexOf(e) >= 0 || name.charAt(0) === '.'){
+    body.innerHTML = '<pre style="color:var(--dim)">Loading…</pre>';
+    fetch('/api/preview?path=' + encodeURIComponent(filePath))
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if(d.error) body.innerHTML = '<pre style="color:var(--danger)">' + escHtml(d.error) + '</pre>';
+        else body.innerHTML = '<pre>' + escHtml(d.content) + '</pre>';
+      })
+      .catch(function(){ body.innerHTML = '<pre style="color:var(--danger)">Could not load preview</pre>'; });
+  } else {
+    var file = allFiles.find(function(f){ return f.name === name; });
+    body.innerHTML = '<div class="preview-big-icon">' + fileIcon(name, false) + '</div>'
+      + '<div class="preview-info">'
+      + '<div class="preview-info-row"><span class="label">Name</span><span>' + escHtml(name) + '</span></div>'
+      + '<div class="preview-info-row"><span class="label">Type</span><span>.' + escHtml(e||'—') + '</span></div>'
+      + (file ? '<div class="preview-info-row"><span class="label">Size</span><span>' + fmtSize(file.size) + '</span></div>'
+              + '<div class="preview-info-row"><span class="label">Modified</span><span>' + fmtDate(file.modified) + '</span></div>' : '')
+      + '</div><br>'
+      + '<button class="btn btn-primary" onclick="dlItem(\'' + esc(filePath) + '\',false)">⬇ Download</button>';
   }
 }
-function closePreview(){document.getElementById('preview-panel').style.display='none';}
+function closePreview(){ document.getElementById('preview-panel').style.display = 'none'; }
 
-// CONTEXT MENU
-function showCtx(e,name,isDir){
+// ── Context menu / Bottom sheet ───────────────────────────────────────────────
+function showCtx(e, name, isDir){
   e.preventDefault();
-  ctxTarget={name:name,isDir:isDir,path:joinPath(currentPath,name)};
-  document.getElementById('ctx-preview-btn').style.display=isDir?'none':'flex';
-  var menu=document.getElementById('ctx-menu');menu.style.display='block';
-  menu.style.left=Math.min(e.clientX,window.innerWidth-200)+'px';
-  menu.style.top=Math.min(e.clientY,window.innerHeight-180)+'px';
+  ctxTarget = {name: name, isDir: isDir, path: joinPath(currentPath, name)};
+  if(isMobile()){
+    document.getElementById('sheet-title').textContent = name;
+    document.getElementById('sheet-preview-btn').style.display = isDir ? 'none' : 'flex';
+    document.getElementById('sheet-backdrop').style.display = 'block';
+    setTimeout(function(){ document.getElementById('ctx-sheet').classList.add('open'); }, 10);
+  } else {
+    document.getElementById('ctx-preview-btn').style.display = isDir ? 'none' : 'flex';
+    var menu = document.getElementById('ctx-menu'); menu.style.display = 'block';
+    menu.style.left = Math.min(e.clientX, window.innerWidth - 200) + 'px';
+    menu.style.top  = Math.min(e.clientY, window.innerHeight - 180) + 'px';
+  }
 }
-document.addEventListener('click',function(e){
-  document.getElementById('ctx-menu').style.display='none';
-  if(fabOpen&&!e.target.closest('#fab-wrap'))closeFab();
+function closeSheet(){
+  document.getElementById('ctx-sheet').classList.remove('open');
+  document.getElementById('sheet-backdrop').style.display = 'none';
+}
+document.addEventListener('click', function(ev){
+  document.getElementById('ctx-menu').style.display = 'none';
+  if(fabOpen && !ev.target.closest('#fab-wrap')) closeFab();
 });
-function ctxDownload(){if(ctxTarget)dlItem(ctxTarget.path,ctxTarget.isDir);}
-function ctxPreview(){if(ctxTarget&&!ctxTarget.isDir)previewFile(ctxTarget.name);}
+
+function ctxDownload(){ if(ctxTarget) dlItem(ctxTarget.path, ctxTarget.isDir); }
+function ctxPreview(){  if(ctxTarget && !ctxTarget.isDir) previewFile(ctxTarget.name); }
 function ctxRename(){
-  if(!ctxTarget)return;
-  showModal('Rename',ctxTarget.name,'Rename',function(newName){
-    fetch('/api/rename',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({oldPath:ctxTarget.path,newName:newName})}).then(refreshFiles);
+  if(!ctxTarget) return;
+  showModal('Rename', ctxTarget.name, 'Rename', function(newName){
+    fetch('/api/rename', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({oldPath: ctxTarget.path, newName: newName})})
+      .then(function(r){ return r.json(); })
+      .then(function(d){ if(d.error) alert('Rename failed: ' + d.error); else refreshFiles(); });
   });
 }
 function ctxDelete(){
-  if(!ctxTarget)return;
-  if(!confirm('Delete "'+ctxTarget.name+'"?'+(ctxTarget.isDir?' This deletes the folder and ALL its contents.':'')+' Cannot be undone.'))return;
-  fetch('/api/delete?path='+encodeURIComponent(ctxTarget.path),{method:'DELETE'}).then(refreshFiles);
+  if(!ctxTarget) return;
+  if(!confirm('Delete "' + ctxTarget.name + '"?' + (ctxTarget.isDir ? ' This deletes the folder and ALL its contents.' : '') + '\nCannot be undone.')) return;
+  fetch('/api/delete?path=' + encodeURIComponent(ctxTarget.path), {method:'DELETE'})
+    .then(function(r){ return r.json(); })
+    .then(function(d){ if(d.error) alert('Delete failed: ' + d.error); else refreshFiles(); });
 }
+
+// ── Create folder ─────────────────────────────────────────────────────────────
 function showMkdir(){
-  showModal('New Folder','','Create',function(name){
-    fetch('/api/mkdir',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({path:joinPath(currentPath,name)})}).then(refreshFiles);
+  showModal('New Folder', '', 'Create', function(name){
+    fetch('/api/mkdir', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({path: joinPath(currentPath, name)})})
+      .then(function(r){ return r.json(); })
+      .then(function(d){ if(d.error) alert('Error: ' + d.error); else refreshFiles(); });
   });
 }
-function showModal(title,val,okLabel,onConfirm){
-  document.getElementById('modal-title').textContent=title;
-  var input=document.getElementById('modal-input');input.value=val;
-  document.getElementById('modal-ok').textContent=okLabel;
-  document.getElementById('modal').style.display='flex';
-  modalAction=onConfirm;
-  setTimeout(function(){input.focus();input.select();},50);
+
+// ── Modal ─────────────────────────────────────────────────────────────────────
+function showModal(title, val, okLabel, onConfirm){
+  document.getElementById('modal-title').textContent = title;
+  var input = document.getElementById('modal-input'); input.value = val;
+  document.getElementById('modal-ok').textContent = okLabel;
+  document.getElementById('modal').style.display = 'flex';
+  modalAction = onConfirm;
+  setTimeout(function(){ input.focus(); input.select(); }, 80);
 }
-function closeModal(){document.getElementById('modal').style.display='none';modalAction=null;}
+function closeModal(){ document.getElementById('modal').style.display = 'none'; modalAction = null; }
 function modalConfirm(){
-  var val=document.getElementById('modal-input').value.trim();
-  if(!val)return;
-  var action=modalAction;
-  closeModal();
-  if(action)action(val);
+  var val = document.getElementById('modal-input').value.trim();
+  if(!val) return;
+  var action = modalAction; closeModal();
+  if(action) action(val);
 }
-// HELPERS
-function joinPath(base,name){return(base.endsWith('/')?base:base+'/')+name;}
-function getExt(name){var p=name.split('.');return p.length>1?p.pop().toLowerCase():'';}
-function fileIcon(name,isDir){
-  if(isDir)return'📁';
-  var e=getExt(name);
-  var m={js:'📜',ts:'📜',jsx:'⚛️',tsx:'⚛️',py:'🐍',c:'⚙️',cpp:'⚙️',h:'⚙️',java:'☕',go:'🐹',rs:'🦀',rb:'💎',php:'🐘',sh:'🔧',bash:'🔧',html:'🌐',css:'🎨',json:'📋',yaml:'📋',yml:'📋',xml:'📋',md:'📝',txt:'📄',pdf:'📕',doc:'📘',docx:'📘',xls:'📗',xlsx:'📗',zip:'📦',tar:'📦',gz:'📦',rar:'📦',png:'🖼',jpg:'🖼',jpeg:'🖼',gif:'🖼',svg:'🖼',mp4:'🎬',mov:'🎬',mp3:'🎵',wav:'🎵',sql:'🗄️',db:'🗄️',env:'🔐',pem:'🔐',key:'🔐'};
-  return m[e]||'📄';
-}
-function fmtSize(b){if(!b)return'—';if(b<1024)return b+' B';if(b<1048576)return(b/1024).toFixed(1)+' KB';if(b<1073741824)return(b/1048576).toFixed(1)+' MB';return(b/1073741824).toFixed(1)+' GB';}
-function fmtDate(d){if(!d)return'';return new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'});}
-function esc(s){return s.replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function escAttr(s){return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
 // ── FAB ───────────────────────────────────────────────────────────────────────
-var fabOpen=false;
 function toggleFab(){
-  fabOpen=!fabOpen;
-  document.getElementById('fab-btn').classList.toggle('open',fabOpen);
-  document.getElementById('fab-menu').classList.toggle('open',fabOpen);
+  fabOpen = !fabOpen;
+  document.getElementById('fab-btn').classList.toggle('open', fabOpen);
+  document.getElementById('fab-menu').classList.toggle('open', fabOpen);
 }
 function closeFab(){
-  if(!fabOpen)return;
-  fabOpen=false;
+  if(!fabOpen) return;
+  fabOpen = false;
   document.getElementById('fab-btn').classList.remove('open');
   document.getElementById('fab-menu').classList.remove('open');
 }
 
 // ── Mobile search ─────────────────────────────────────────────────────────────
-var mobileSearchOpen=false;
 function toggleMobileSearch(){
-  mobileSearchOpen=!mobileSearchOpen;
-  var row=document.getElementById('mobile-search-row');
-  var btn=document.getElementById('search-toggle-btn');
-  row.classList.toggle('open',mobileSearchOpen);
-  btn.style.color=mobileSearchOpen?'var(--accent)':'';
-  if(mobileSearchOpen){
-    setTimeout(function(){document.getElementById('search-input-mobile').focus();},50);
-  }else{
-    document.getElementById('search-input-mobile').value='';
-    filterFiles('');
-  }
+  mobileSearchOpen = !mobileSearchOpen;
+  var row = document.getElementById('mobile-search-row');
+  var btn = document.getElementById('search-toggle-btn');
+  row.classList.toggle('open', mobileSearchOpen);
+  btn.style.color = mobileSearchOpen ? 'var(--accent)' : '';
+  if(mobileSearchOpen) setTimeout(function(){ document.getElementById('search-input-mobile').focus(); }, 60);
+  else { document.getElementById('search-input-mobile').value = ''; filterFiles(''); }
 }
 function clearMobileSearch(){
-  document.getElementById('search-input-mobile').value='';
+  document.getElementById('search-input-mobile').value = '';
   filterFiles('');
   document.getElementById('search-input-mobile').focus();
 }
+
+// ── Resize handler (update back button on orientation change) ─────────────────
+window.addEventListener('resize', function(){ updateBackBtn(); });
 </script>
 </body>
 </html>
