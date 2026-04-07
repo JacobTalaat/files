@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const multer = require('multer');
 const session = require('express-session');
@@ -6,13 +7,13 @@ const fs = require('fs');
 const path = require('path');
 
 const app = express();
-const PORT = 9000;
-const ROOT_DIR = '/home/jacob';
-const PASSWORD = '1242005';
+const PORT = process.env.PORT || 9000;
+const ROOT_DIR = process.env.ROOT_DIR || '/home/jacob';
+const PASSWORD = process.env.PASSWORD;
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(session({ secret: 'jacob-files-2026', resave: false, saveUninitialized: false, cookie: { maxAge: 86400000, httpOnly: true } }));
+app.use(session({ secret: process.env.SESSION_SECRET, resave: false, saveUninitialized: false, cookie: { maxAge: 86400000, httpOnly: true } }));
 
 const auth = (req, res, next) => req.session.auth ? next() : res.status(401).json({ error: 'Unauthorized' });
 
