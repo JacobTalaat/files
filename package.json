@@ -6,7 +6,10 @@
     "start": "node server.js",
     "dev": "nodemon server.js",
     "build": "npm run build:app",
-    "build:app": "esbuild src/main.jsx --bundle --format=iife --target=es2020 --outfile=public/app.js"
+    "build:app": "esbuild src/main.jsx --bundle --format=iife --target=es2020 --minify --outfile=public/app.js",
+    "lint": "node --check server.js server/app.js server/routes/api.js server/lib/errors.js server/lib/file-service.js server/config.js",
+    "test": "node --test test/*.test.js",
+    "check": "npm run lint && npm test && npm run build"
   },
   "dependencies": {
     "archiver": "^7.0.1",
@@ -22,11 +25,7 @@
     "session-file-store": "^1.5.0"
   },
   "devDependencies": {
-    "@tailwindcss/cli": "^4.2.4",
-    "@tailwindcss/container-queries": "^0.1.1",
-    "@tailwindcss/forms": "^0.5.11",
     "esbuild": "^0.28.0",
-    "nodemon": "^3.1.14",
-    "tailwindcss": "^4.2.4"
+    "nodemon": "^3.1.14"
   }
 }

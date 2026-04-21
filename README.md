@@ -67,15 +67,18 @@ http://localhost:9000
 | Variable | Description | Default |
 | --- | --- | --- |
 | `PORT` | Port the server listens on | `9000` |
-| `ROOT_DIR` | Absolute path to the directory exposed by the file manager | `/home/jacob` |
+| `ROOT_DIR` | Absolute path to the directory exposed by the file manager | required |
 | `PASSWORD` | Login password for the UI | required |
 | `SESSION_SECRET` | Secret used to sign session cookies | required |
 | `SESSION_COOKIE_SECURE` | Set to `1` when running behind HTTPS | empty |
 | `BOOKMARKS` | Comma-separated sidebar bookmarks under `ROOT_DIR` | auto-generated if empty |
 
+The server now refuses to start if `ROOT_DIR`, `PASSWORD`, or `SESSION_SECRET` are missing or still set to placeholder values.
+
 ## Docker
 
 The container build compiles the React frontend and then installs only production runtime dependencies in the final image.
+The checked-in Compose file binds to loopback by default so the app is not directly exposed before a reverse proxy is configured.
 
 ### Run with Compose
 
@@ -237,6 +240,12 @@ sudo docker compose up -d --build
 ```
 
 Then hard refresh the browser.
+
+## Security Notes
+
+- Files served through `/api/raw` now force downloads for active web content such as HTML, SVG, XML, JavaScript, and CSS.
+- Inline raw responses remain intended for safe media/document preview cases like images, audio, video, and PDFs.
+- Rename operations are limited to the current directory; cross-directory relocation should use the move action.
 
 ## Project Structure
 

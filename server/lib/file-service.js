@@ -13,6 +13,16 @@ const execFileAsync = util.promisify(execFile);
 function createFileService(config) {
   const rootResolved = path.resolve(config.rootDir);
   const withinRoot = (candidate) => candidate === rootResolved || candidate.startsWith(rootResolved + path.sep);
+  const INLINE_SAFE_EXTENSIONS = new Set([
+    'png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'ico', 'avif',
+    'mp4', 'mov', 'mkv', 'webm', 'avi',
+    'mp3', 'wav', 'flac', 'm4a', 'aac', 'ogg',
+    'pdf',
+  ]);
+  const INLINE_SAFE_MIME_PREFIXES = ['image/', 'video/', 'audio/'];
+  const DOWNLOAD_ONLY_EXTENSIONS = new Set([
+    'html', 'htm', 'svg', 'xml', 'js', 'mjs', 'cjs', 'css', 'xhtml',
+  ]);
 
   function safe(relPath) {
     const abs = path.resolve(path.join(rootResolved, relPath || '/'));
@@ -35,6 +45,27 @@ function createFileService(config) {
   function toClientPath(absPath) {
     const relative = path.relative(rootResolved, absPath).replace(/\\/g, '/');
     return '/' + relative;
+  }
+
+  function normalizeClientPath(relPath) {
+    const value = String(relPath || '').trim();
+    if (!value) {
+      throw httpError(400, 'Path is required');
+    }
+    return value.startsWith('/') ? value : `/${value}`;
+  }
+
+  function assertBatchPaths(paths) {
+    if (!Array.isArray(paths) || !paths.length) throw httpError(400, 'No paths provided');
+    return paths.map((relPath) => normalizeClientPath(relPath));
+  }
+
+  function assertSimpleName(name) {
+    const normalized = String(name || '').trim();
+    if (!normalized) throw httpError(400, 'Name is required');
+    if (normalized === '.' || normalized === '..') throw httpError(400, 'Invalid name');
+    if (path.basename(normalized) !== normalized) throw httpError(400, 'Name must not contain path separators');
+    return normalized;
   }
 
   async function listFiles(relPath) {
@@ -178,7 +209,7 @@ function createFileService(config) {
   }
 
   async function writeFile(relPath, content) {
-    const abs = safe(relPath);
+    const abs = safe(normalizeClientPath(relPath));
     const stat = await fsp.stat(abs);
     if (stat.isDirectory()) throw httpError(400, 'Cannot write to a directory');
     if (typeof content !== 'string') throw httpError(400, 'Missing content');
@@ -190,19 +221,26 @@ function createFileService(config) {
   }
 
   async function remove(relPath) {
-    await fsp.rm(safe(relPath), { recursive: true, force: true });
+    await fsp.rm(safe(normalizeClientPath(relPath)), { recursive: true, force: true });
     return { ok: true };
   }
 
   async function mkdir(relPath) {
-    await fsp.mkdir(safe(relPath), { recursive: true });
+    await fsp.mkdir(safe(normalizeClientPath(relPath)), { recursive: true });
     return { ok: true };
   }
 
   async function rename(oldPath, newName) {
-    const source = safe(oldPath);
-    const destination = path.join(path.dirname(source), newName);
+    const source = safe(normalizeClientPath(oldPath));
+    const destination = path.join(path.dirname(source), assertSimpleName(newName));
     if (!withinRoot(destination)) throw httpError(403, 'Access denied');
+    if (destination === source) return { ok: true };
+    try {
+      await fsp.access(destination);
+      throw httpError(409, 'Destination already exists');
+    } catch (error) {
+      if (error && error.code !== 'ENOENT') throw error;
+    }
     await fsp.rename(source, destination);
     return { ok: true };
   }
@@ -223,8 +261,15 @@ function createFileService(config) {
   }
 
   async function move(fromPath, toPath) {
-    const source = safe(fromPath);
-    const destination = safe(toPath);
+    const source = safe(normalizeClientPath(fromPath));
+    const destination = safe(normalizeClientPath(toPath));
+    if (destination === source) return { ok: true };
+    try {
+      await fsp.access(destination);
+      throw httpError(409, 'Destination already exists');
+    } catch (error) {
+      if (error && error.code !== 'ENOENT') throw error;
+    }
     try {
       await fsp.rename(source, destination);
     } catch (error) {
@@ -239,9 +284,9 @@ function createFileService(config) {
   }
 
   async function batchDelete(paths) {
-    if (!Array.isArray(paths) || !paths.length) throw httpError(400, 'No paths provided');
+    const safePaths = assertBatchPaths(paths);
     let deleted = 0;
-    for (const relPath of paths) {
+    for (const relPath of safePaths) {
       await fsp.rm(safe(relPath), { recursive: true, force: true });
       deleted += 1;
     }
@@ -249,22 +294,35 @@ function createFileService(config) {
   }
 
   async function stat(relPath) {
-    const abs = safe(relPath);
+    const abs = safe(normalizeClientPath(relPath));
     const value = await fsp.stat(abs);
     return { abs, stat: value };
   }
 
   async function ensureDir(relPath) {
-    const abs = safe(relPath);
+    const abs = safe(normalizeClientPath(relPath));
     await fsp.mkdir(abs, { recursive: true });
     return abs;
   }
 
   function getMime(relPath) {
-    return mime.lookup(safe(relPath)) || 'application/octet-stream';
+    return mime.lookup(safe(normalizeClientPath(relPath))) || 'application/octet-stream';
+  }
+
+  function getContentDisposition(relPath) {
+    const safePath = normalizeClientPath(relPath);
+    const filename = encodeURIComponent(path.basename(safePath) || 'download');
+    const ext = path.extname(safePath).slice(1).toLowerCase();
+    const mimeType = getMime(safePath);
+    const inlineAllowed = INLINE_SAFE_EXTENSIONS.has(ext)
+      || INLINE_SAFE_MIME_PREFIXES.some((prefix) => mimeType.startsWith(prefix));
+    const dispositionType = inlineAllowed && !DOWNLOAD_ONLY_EXTENSIONS.has(ext) ? 'inline' : 'attachment';
+    return `${dispositionType}; filename="${filename}"`;
   }
 
   return {
+    assertBatchPaths,
+    assertSimpleName,
     safe,
     stat,
     listFiles,
@@ -281,6 +339,7 @@ function createFileService(config) {
     batchDelete,
     ensureDir,
     getMime,
+    getContentDisposition,
     toClientPath,
     rootResolved,
     withinRoot,

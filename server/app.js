@@ -10,10 +10,26 @@ const { createApiRouter } = require('./routes/api');
 function createApp(config) {
   const app = express();
   const service = createFileService(config);
+  const publicDir = path.join(process.cwd(), 'public');
 
   app.set('trust proxy', 1);
   app.use(helmet({
-    contentSecurityPolicy: false,
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        baseUri: ["'self'"],
+        connectSrc: ["'self'"],
+        fontSrc: ["'self'", 'https://fonts.gstatic.com'],
+        formAction: ["'self'"],
+        frameAncestors: ["'none'"],
+        imgSrc: ["'self'", 'data:', 'blob:'],
+        mediaSrc: ["'self'", 'blob:'],
+        objectSrc: ["'self'", 'blob:'],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+        upgradeInsecureRequests: [],
+      },
+    },
     crossOriginEmbedderPolicy: false,
   }));
   app.use(express.json());
@@ -43,7 +59,7 @@ function createApp(config) {
     message: { error: 'Too many login attempts. Try again later.' },
   });
 
-  app.use(express.static(path.join(process.cwd(), 'public')));
+  app.use(express.static(publicDir));
   app.use('/api', createApiRouter({ config, service, auth, loginLimiter }));
 
   app.use((err, req, res, next) => {
@@ -57,7 +73,7 @@ function createApp(config) {
   });
 
   app.get('*', (req, res) => {
-    res.sendFile(path.join(process.cwd(), 'public', 'index.html'));
+    res.sendFile(path.join(publicDir, 'index.html'));
   });
 
   return app;

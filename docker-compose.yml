@@ -2,7 +2,7 @@ services:
   jacob-files:
     build: .
     ports:
-      - "9000:9000"
+      - "127.0.0.1:9000:9000"
     environment:
       PORT: "9000"
       ROOT_DIR: "/data"
@@ -11,4 +11,3 @@ services:
       SESSION_COOKIE_SECURE: ""
     volumes:
       - ./data:/data
-

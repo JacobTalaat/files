@@ -7,6 +7,16 @@ const { wrapAsync, httpError } = require('../lib/errors');
 function createApiRouter({ config, service, auth, loginLimiter }) {
   const router = express.Router();
 
+  function normalizeUploadFolderRelativePath(originalname) {
+    const raw = String(originalname || '').replace(/\\/g, '/');
+    const segments = raw.split('/').filter(Boolean);
+    if (!segments.length) throw httpError(400, 'Invalid upload path');
+    for (const segment of segments) {
+      service.assertSimpleName(segment);
+    }
+    return segments.join('/');
+  }
+
   const fileStorage = multer.diskStorage({
     destination(req, file, cb) {
       service.ensureDir(req.query.path)
@@ -14,7 +24,11 @@ function createApiRouter({ config, service, auth, loginLimiter }) {
         .catch(cb);
     },
     filename(req, file, cb) {
-      cb(null, file.originalname);
+      try {
+        cb(null, service.assertSimpleName(file.originalname));
+      } catch (error) {
+        cb(error);
+      }
     },
   });
 
@@ -28,7 +42,15 @@ function createApiRouter({ config, service, auth, loginLimiter }) {
         return;
       }
 
-      const relDir = path.dirname(file.originalname);
+      let relativeUploadPath;
+      try {
+        relativeUploadPath = normalizeUploadFolderRelativePath(file.originalname);
+      } catch (error) {
+        cb(error);
+        return;
+      }
+
+      const relDir = path.dirname(relativeUploadPath);
       const destination = relDir && relDir !== '.'
         ? path.join(basePath, relDir)
         : basePath;
@@ -43,7 +65,12 @@ function createApiRouter({ config, service, auth, loginLimiter }) {
         .catch(cb);
     },
     filename(req, file, cb) {
-      cb(null, path.basename(file.originalname));
+      try {
+        const relativeUploadPath = normalizeUploadFolderRelativePath(file.originalname);
+        cb(null, service.assertSimpleName(path.basename(relativeUploadPath)));
+      } catch (error) {
+        cb(error);
+      }
     },
   });
 
@@ -57,17 +84,26 @@ function createApiRouter({ config, service, auth, loginLimiter }) {
     limits: { fileSize: config.maxUploadBytes },
   }).array('folder');
 
-  router.post('/login', loginLimiter, (req, res) => {
+  router.post('/login', loginLimiter, (req, res, next) => {
     if (req.body.password === config.password) {
-      req.session.auth = true;
-      res.json({ ok: true });
+      req.session.regenerate((error) => {
+        if (error) {
+          next(error);
+          return;
+        }
+        req.session.auth = true;
+        res.json({ ok: true });
+      });
       return;
     }
     res.status(401).json({ error: 'Wrong password' });
   });
 
   router.post('/logout', (req, res) => {
-    req.session.destroy(() => res.json({ ok: true }));
+    req.session.destroy(() => {
+      res.clearCookie('connect.sid');
+      res.json({ ok: true });
+    });
   });
 
   router.get('/check', (req, res) => {
@@ -102,6 +138,8 @@ function createApiRouter({ config, service, auth, loginLimiter }) {
   router.get('/raw', auth, wrapAsync(async (req, res) => {
     const { abs, stat } = await service.stat(req.query.path);
     if (stat.isDirectory()) throw httpError(400, 'Cannot open a directory');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('Content-Disposition', service.getContentDisposition(req.query.path));
     res.type(service.getMime(req.query.path));
     res.sendFile(abs);
   }));
@@ -142,8 +180,7 @@ function createApiRouter({ config, service, auth, loginLimiter }) {
   }));
 
   router.post('/batch/download', auth, wrapAsync(async (req, res) => {
-    const paths = Array.isArray(req.body.paths) ? req.body.paths : [];
-    if (!paths.length) throw httpError(400, 'No paths provided');
+    const paths = service.assertBatchPaths(req.body.paths);
 
     res.setHeader('Content-Disposition', 'attachment; filename="download.zip"');
     res.setHeader('Content-Type', 'application/zip');
