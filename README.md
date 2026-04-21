@@ -1,21 +1,24 @@
-# Jacob File Manager
+# Sovereign Console
 
-A self-hosted, password-protected web file manager. Access and manage files on your server from any browser — no client software required.
+A self-hosted, password-protected web file manager with a React frontend and an Express filesystem API. It is designed for simple VPS deployment behind Docker and a reverse proxy.
 
 ## Features
 
-- Browse directories and navigate the file tree
-- Upload individual files or entire folders (preserving folder structure)
-- Download files directly, or download folders as a `.zip` archive
-- Preview text files in-browser
-- Create folders, rename files/folders, delete files/folders
-- Password-protected login with persistent session
+- Password-protected login with persistent session cookies
+- Browse directories, navigate breadcrumbs, and switch between list/grid explorer views
+- Upload files and folders
+- Download files, folders, or batch selections
+- Preview and edit text files in-browser
+- Preview images, video, audio, and PDFs
+- Create folders, rename items, delete items, and batch delete
+- Transfers, security, disk usage, metadata, and terminal activity panels
 
 ## Requirements
 
-- [Node.js](https://nodejs.org/) v16 or later
+- Node.js 18+ for local development
+- Docker and Docker Compose for container deployment
 
-## Setup
+## Local Development
 
 1. Clone the repository:
 
@@ -30,101 +33,233 @@ cd files
 npm install
 ```
 
-3. Build the production CSS bundle:
+3. Create a `.env` file in the project root:
 
-```bash
-npm run build:css
-```
-
-4. Copy the example environment file and fill in your values:
-
-```bash
-cp .env.example .env
-```
-
-## Configuration
-
-Edit `.env` with your settings:
-
-| Variable                | Description                                                | Default       |
-| ----------------------- | ---------------------------------------------------------- | ------------- |
-| `PORT`                  | Port the server listens on                                 | `9000`        |
-| `ROOT_DIR`              | Absolute path to the directory to expose                   | `/home/jacob` |
-| `PASSWORD`              | Login password for the web UI                              | _(required)_  |
-| `SESSION_SECRET`        | Secret key used to sign session cookies                    | _(required)_  |
-| `SESSION_COOKIE_SECURE` | Set to `1` if behind HTTPS proxy                           | _(optional)_  |
-| `BOOKMARKS`             | Comma-separated sidebar bookmarks (paths under `ROOT_DIR`) | _(optional)_  |
-
-Example `.env`:
-
-```
+```env
 PORT=9000
 ROOT_DIR=/home/youruser
-PASSWORD=yourpassword
-SESSION_SECRET=some-long-random-string
+PASSWORD=choose-a-strong-password
+SESSION_SECRET=choose-a-long-random-secret
 SESSION_COOKIE_SECURE=
 BOOKMARKS=/,/Documents,/Downloads
 ```
 
-## Running
+4. Build the frontend bundle:
+
+```bash
+npm run build
+```
+
+5. Start the server:
 
 ```bash
 npm start
 ```
 
-Then open `http://localhost:9000` (or your configured port) in a browser.
+6. Open the app:
 
-## HTTPS / TLS (recommended)
-
-Do **not** expose this app over plain HTTP on the public internet. Put it behind a reverse proxy that terminates TLS.
-
-### Caddy (simple)
-
-Example `Caddyfile`:
-
+```text
+http://localhost:9000
 ```
+
+## Configuration
+
+| Variable | Description | Default |
+| --- | --- | --- |
+| `PORT` | Port the server listens on | `9000` |
+| `ROOT_DIR` | Absolute path to the directory exposed by the file manager | `/home/jacob` |
+| `PASSWORD` | Login password for the UI | required |
+| `SESSION_SECRET` | Secret used to sign session cookies | required |
+| `SESSION_COOKIE_SECURE` | Set to `1` when running behind HTTPS | empty |
+| `BOOKMARKS` | Comma-separated sidebar bookmarks under `ROOT_DIR` | auto-generated if empty |
+
+## Docker
+
+The container build compiles the React frontend and then installs only production runtime dependencies in the final image.
+
+### Run with Compose
+
+Edit `docker-compose.yml` before starting:
+
+```yaml
+services:
+  jacob-files:
+    build: .
+    ports:
+      - "127.0.0.1:9000:9000"
+    environment:
+      PORT: "9000"
+      ROOT_DIR: "/data"
+      PASSWORD: "choose-a-strong-password"
+      SESSION_SECRET: "choose-a-long-random-secret"
+      SESSION_COOKIE_SECURE: ""
+    volumes:
+      - /home/youruser/files-data:/data
+```
+
+Start it:
+
+```bash
+docker compose up -d --build
+```
+
+View logs:
+
+```bash
+docker compose logs -f
+```
+
+Stop it:
+
+```bash
+docker compose down
+```
+
+## VPS Setup
+
+This is the recommended production path.
+
+### 1. Install Docker
+
+On Ubuntu:
+
+```bash
+sudo apt update
+sudo apt install -y docker.io docker-compose
+sudo systemctl enable --now docker
+```
+
+### 2. Clone the repository
+
+```bash
+git clone https://github.com/JacobTalaat/files.git ~/jacob-files
+cd ~/jacob-files
+```
+
+### 3. Create the data directory you want to manage
+
+```bash
+mkdir -p /home/jacob/files-data
+```
+
+### 4. Edit `docker-compose.yml`
+
+Use loopback binding so the app is only reachable through a reverse proxy:
+
+```yaml
+services:
+  jacob-files:
+    build: .
+    ports:
+      - "127.0.0.1:9000:9000"
+    environment:
+      PORT: "9000"
+      ROOT_DIR: "/data"
+      PASSWORD: "choose-a-strong-password"
+      SESSION_SECRET: "choose-a-long-random-secret"
+      SESSION_COOKIE_SECURE: ""
+    volumes:
+      - /home/jacob/files-data:/data
+```
+
+### 5. Start the app
+
+```bash
+sudo docker compose up -d --build
+```
+
+Verify:
+
+```bash
+sudo docker compose ps
+sudo docker compose logs --tail=50
+```
+
+### 6. Put it behind HTTPS
+
+Do not expose the app directly over plain HTTP on the public internet.
+
+#### Caddy example
+
+Install Caddy:
+
+```bash
+sudo apt install -y caddy
+```
+
+Set `/etc/caddy/Caddyfile`:
+
+```caddy
 files.example.com {
   reverse_proxy 127.0.0.1:9000
 }
 ```
 
-Then set `SESSION_COOKIE_SECURE=1` in `.env` so cookies are marked `Secure`.
-
-### Nginx (example)
-
-```
-server {
-  listen 443 ssl;
-  server_name files.example.com;
-
-  location / {
-    proxy_pass http://127.0.0.1:9000;
-    proxy_set_header Host $host;
-    proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-  }
-}
-```
-
-## Docker
-
-Build and run with Compose:
+Restart Caddy:
 
 ```bash
-docker compose up --build
+sudo systemctl restart caddy
+sudo systemctl status caddy
 ```
+
+After HTTPS is working, update `docker-compose.yml`:
+
+```yaml
+SESSION_COOKIE_SECURE: "1"
+```
+
+Then restart the container:
+
+```bash
+sudo docker compose up -d
+```
+
+### 7. Open firewall ports
+
+If you use `ufw`:
+
+```bash
+sudo ufw allow 22
+sudo ufw allow 80
+sudo ufw allow 443
+sudo ufw enable
+```
+
+## Updating on the VPS
+
+When you push changes to GitHub:
+
+```bash
+cd ~/jacob-files
+git pull origin main
+sudo docker compose down
+sudo docker compose up -d --build
+```
+
+Then hard refresh the browser.
 
 ## Project Structure
 
-```
+```text
 files/
 ├── public/
-│   ├── index.html       # Browser UI (single-page app)
-│   ├── app.js           # Frontend logic
-│   ├── tailwind.css     # Compiled Tailwind CSS (build artifact)
-│   └── tailwind.input.css
-├── server.js            # Express server and API routes
+│   ├── index.html      # Static HTML entrypoint
+│   ├── app.js          # Built React bundle
+│   └── app.css         # Built frontend stylesheet
+├── src/
+│   ├── main.jsx        # React app entrypoint
+│   └── styles.css      # Sovereign Console theme/styles
+├── server/
+│   ├── app.js          # Express app composition
+│   ├── config.js       # Environment-backed config
+│   ├── lib/
+│   │   ├── errors.js
+│   │   └── file-service.js
+│   └── routes/
+│       └── api.js
+├── server.js           # Runtime entrypoint
+├── Dockerfile
+├── docker-compose.yml
 ├── package.json
-├── .env                 # Your local config (gitignored)
-└── .env.example         # Config template
+└── README.md
 ```
