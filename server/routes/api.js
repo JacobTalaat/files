@@ -4,7 +4,7 @@ const archiver = require('archiver');
 const path = require('path');
 const { wrapAsync, httpError } = require('../lib/errors');
 
-function createApiRouter({ config, service }) {
+function createApiRouter({ config, service, auth, loginLimiter }) {
   const router = express.Router();
 
   function normalizeUploadFolderRelativePath(originalname) {
@@ -84,36 +84,58 @@ function createApiRouter({ config, service }) {
     limits: { fileSize: config.maxUploadBytes },
   }).array('folder');
 
-  router.get('/check', (req, res) => {
-    res.json({ auth: true });
+  router.post('/login', loginLimiter, (req, res, next) => {
+    if (req.body.password === config.password) {
+      req.session.regenerate((error) => {
+        if (error) {
+          next(error);
+          return;
+        }
+        req.session.auth = true;
+        res.json({ ok: true });
+      });
+      return;
+    }
+    res.status(401).json({ error: 'Wrong password' });
   });
 
-  router.get('/files', wrapAsync(async (req, res) => {
+  router.post('/logout', (req, res) => {
+    req.session.destroy(() => {
+      res.clearCookie('connect.sid');
+      res.json({ ok: true });
+    });
+  });
+
+  router.get('/check', (req, res) => {
+    res.json({ auth: !!req.session.auth });
+  });
+
+  router.get('/files', auth, wrapAsync(async (req, res) => {
     res.json(await service.listFiles(req.query.path || '/'));
   }));
 
-  router.get('/bookmarks', wrapAsync(async (req, res) => {
+  router.get('/bookmarks', auth, wrapAsync(async (req, res) => {
     res.json(await service.getBookmarks(process.env.BOOKMARKS));
   }));
 
-  router.get('/disk', wrapAsync(async (req, res) => {
+  router.get('/disk', auth, wrapAsync(async (req, res) => {
     res.json(await service.getDiskUsage());
   }));
 
-  router.get('/search', wrapAsync(async (req, res) => {
+  router.get('/search', auth, wrapAsync(async (req, res) => {
     const limit = Math.min(Number(req.query.limit || 200) || 200, 500);
     res.json(await service.search(req.query.path || '/', req.query.q, limit));
   }));
 
-  router.get('/hash', wrapAsync(async (req, res) => {
+  router.get('/hash', auth, wrapAsync(async (req, res) => {
     res.json(await service.getHash(req.query.path));
   }));
 
-  router.get('/preview', wrapAsync(async (req, res) => {
+  router.get('/preview', auth, wrapAsync(async (req, res) => {
     res.json(await service.getPreview(req.query.path));
   }));
 
-  router.get('/raw', wrapAsync(async (req, res) => {
+  router.get('/raw', auth, wrapAsync(async (req, res) => {
     const { abs, stat } = await service.stat(req.query.path);
     if (stat.isDirectory()) throw httpError(400, 'Cannot open a directory');
     res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -122,21 +144,21 @@ function createApiRouter({ config, service }) {
     res.sendFile(abs);
   }));
 
-  router.post('/upload', (req, res, next) => {
+  router.post('/upload', auth, (req, res, next) => {
     uploadFiles(req, res, (error) => {
       if (error) next(error);
       else res.json({ ok: true, count: req.files.length });
     });
   });
 
-  router.post('/upload-folder', (req, res, next) => {
+  router.post('/upload-folder', auth, (req, res, next) => {
     uploadFolder(req, res, (error) => {
       if (error) next(error);
       else res.json({ ok: true, count: req.files.length });
     });
   });
 
-  router.get('/download', wrapAsync(async (req, res) => {
+  router.get('/download', auth, wrapAsync(async (req, res) => {
     const { abs, stat } = await service.stat(req.query.path);
     const filename = path.basename(abs);
     if (stat.isDirectory()) {
@@ -153,11 +175,11 @@ function createApiRouter({ config, service }) {
     res.sendFile(abs);
   }));
 
-  router.post('/batch/delete', wrapAsync(async (req, res) => {
+  router.post('/batch/delete', auth, wrapAsync(async (req, res) => {
     res.json(await service.batchDelete(req.body.paths));
   }));
 
-  router.post('/batch/download', wrapAsync(async (req, res) => {
+  router.post('/batch/download', auth, wrapAsync(async (req, res) => {
     const paths = service.assertBatchPaths(req.body.paths);
 
     res.setHeader('Content-Disposition', 'attachment; filename="download.zip"');
@@ -177,23 +199,23 @@ function createApiRouter({ config, service }) {
     await archive.finalize();
   }));
 
-  router.post('/mkdir', wrapAsync(async (req, res) => {
+  router.post('/mkdir', auth, wrapAsync(async (req, res) => {
     res.json(await service.mkdir(req.body.path));
   }));
 
-  router.delete('/delete', wrapAsync(async (req, res) => {
+  router.delete('/delete', auth, wrapAsync(async (req, res) => {
     res.json(await service.remove(req.query.path));
   }));
 
-  router.post('/rename', wrapAsync(async (req, res) => {
+  router.post('/rename', auth, wrapAsync(async (req, res) => {
     res.json(await service.rename(req.body.oldPath, req.body.newName));
   }));
 
-  router.post('/move', wrapAsync(async (req, res) => {
+  router.post('/move', auth, wrapAsync(async (req, res) => {
     res.json(await service.move(req.body.fromPath, req.body.toPath));
   }));
 
-  router.put('/file', wrapAsync(async (req, res) => {
+  router.put('/file', auth, wrapAsync(async (req, res) => {
     res.json(await service.writeFile(req.body.path, req.body.content));
   }));
 

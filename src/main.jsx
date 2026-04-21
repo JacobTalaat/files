@@ -171,6 +171,11 @@ function createTerminalLine(text) {
 }
 
 function App() {
+  const [authChecked, setAuthChecked] = useState(false);
+  const [isAuthed, setIsAuthed] = useState(false);
+  const [password, setPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
+  const [busy, setBusy] = useState(false);
   const [currentPath, setCurrentPath] = useState('/');
   const [files, setFiles] = useState([]);
   const [bookmarks, setBookmarks] = useState([{ name: 'ROOT', path: '/' }]);
@@ -237,7 +242,13 @@ function App() {
   }, []);
 
   useEffect(() => {
-    bootstrap('/').catch(() => {});
+    apiFetch('/api/check')
+      .then((data) => {
+        setIsAuthed(!!data.auth);
+        if (data.auth) bootstrap('/');
+      })
+      .catch(() => {})
+      .finally(() => setAuthChecked(true));
   }, []);
 
   useEffect(() => {
@@ -600,6 +611,63 @@ function App() {
 
   const breadcrumbs = currentPath.split('/').filter(Boolean);
 
+  if (!authChecked) {
+    return <div className="boot-screen">BOOTING SOVEREIGN CONSOLE...</div>;
+  }
+
+  if (!isAuthed) {
+    return (
+      <div className="login-screen">
+        <div className="login-rings">
+          <div />
+          <div />
+        </div>
+        <div className="auth-shell">
+          <div className="auth-titlebar">
+            <div className="auth-title">JM // SECURE_AUTH_V4.0</div>
+            <div className="auth-actions">
+              <span />
+              <span />
+            </div>
+          </div>
+          <form className="auth-body" onSubmit={handleLogin}>
+            <div>
+              <h1>JACOB_FS</h1>
+              <div className="auth-meta">
+                <span>OPERATOR: LOCAL_SYSTEM</span>
+                <span>STATUS: ACCESS_GATE_ACTIVE</span>
+              </div>
+            </div>
+            <label className="auth-field">
+              <span>ENTER_PASSWORD</span>
+              <div className="auth-input-shell">
+                <span className="material-symbols-outlined filled">lock</span>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  placeholder="••••••••"
+                  autoFocus
+                />
+                <span className="cursor-block" />
+              </div>
+              {loginError ? <em>{loginError}</em> : null}
+            </label>
+            <button className="primary-button auth-submit" disabled={busy} type="submit">
+              <span>UNLOCK</span>
+              <span className="material-symbols-outlined">terminal</span>
+            </button>
+          </form>
+          <div className="auth-footer">
+            <span>REGION: US-EAST</span>
+            <span>KERNEL: 6.1.0-V</span>
+            <span className="status-live">SYSTEM_ACTIVE</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="app-shell">
       <header className="topbar">
@@ -648,6 +716,9 @@ function App() {
           ) : null}
           <button className="icon-button" onClick={() => setActivePanel('explorer')} type="button">
             <span className="material-symbols-outlined">terminal</span>
+          </button>
+          <button className="icon-button" onClick={handleLogout} type="button">
+            <span className="material-symbols-outlined">power_settings_new</span>
           </button>
         </div>
       </header>
@@ -1143,3 +1214,32 @@ function Modal({ modal, onClose, onSubmit }) {
 }
 
 createRoot(document.getElementById('root')).render(<App />);
+  async function handleLogin(event) {
+    event.preventDefault();
+    setBusy(true);
+    setLoginError('');
+    try {
+      await apiFetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
+      });
+      setIsAuthed(true);
+      setPassword('');
+      setSessionStart(new Date().toISOString().slice(11, 19) + ' UTC');
+      await bootstrap('/');
+    } catch (error) {
+      setLoginError(error.message || 'ACCESS_DENIED');
+    } finally {
+      setBusy(false);
+      setAuthChecked(true);
+    }
+  }
+
+  async function handleLogout() {
+    await apiFetch('/api/logout', { method: 'POST' }).catch(() => {});
+    setIsAuthed(false);
+    setFiles([]);
+    setPreview({ open: false, file: null, content: '', loading: false, editable: false, hash: '—', error: '', dirty: false, mediaType: '' });
+    setActivePanel('explorer');
+  }

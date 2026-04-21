@@ -1,10 +1,11 @@
 # FILES
 
-A self-hosted web file manager with a React frontend and an Express filesystem API. It is designed for simple VPS deployment behind Docker and a reverse proxy.
+A self-hosted password-protected web file manager with a React frontend and an Express filesystem API. It is designed for simple VPS deployment behind Docker and a reverse proxy.
 
 ## Features
 
 - Browse directories, navigate breadcrumbs, and switch between list/grid explorer views
+- Password-protected access with a built-in app login
 - Upload files and folders
 - Download files, folders, or batch selections
 - Preview and edit text files in-browser
@@ -37,6 +38,9 @@ npm install
 ```env
 PORT=9000
 ROOT_DIR=/home/youruser
+PASSWORD=choose-a-password
+SESSION_SECRET=choose-a-long-random-secret-with-at-least-24-characters
+SESSION_COOKIE_SECURE=
 BOOKMARKS=/,/Documents,/Downloads
 ```
 
@@ -64,8 +68,11 @@ http://localhost:9000
 | --- | --- | --- |
 | `PORT` | Port the server listens on | `9000` |
 | `ROOT_DIR` | Absolute path to the directory exposed by the file manager | required |
+| `PASSWORD` | Password shown by the app login screen | required |
+| `SESSION_SECRET` | Secret used to sign the login cookie | required |
+| `SESSION_COOKIE_SECURE` | Set to `1` when running behind HTTPS | empty |
 | `BOOKMARKS` | Comma-separated sidebar bookmarks under `ROOT_DIR` | auto-generated if empty |
-The server requires `ROOT_DIR`.
+The server requires `ROOT_DIR`, `PASSWORD`, and `SESSION_SECRET`.
 
 ## Docker
 
@@ -85,6 +92,9 @@ services:
     environment:
       PORT: "9000"
       ROOT_DIR: "/data"
+      PASSWORD: "choose-a-password"
+      SESSION_SECRET: "choose-a-long-random-secret-with-at-least-24-characters"
+      SESSION_COOKIE_SECURE: ""
     volumes:
       - /home/youruser/files-data:/data
 ```
@@ -147,6 +157,9 @@ services:
     environment:
       PORT: "9000"
       ROOT_DIR: "/data"
+      PASSWORD: "choose-a-password"
+      SESSION_SECRET: "choose-a-long-random-secret-with-at-least-24-characters"
+      SESSION_COOKIE_SECURE: ""
     volumes:
       - /home/jacob/files-data:/data
 ```
@@ -191,7 +204,13 @@ sudo systemctl restart caddy
 sudo systemctl status caddy
 ```
 
-After HTTPS is working, restart the container:
+After HTTPS is working, update `docker-compose.yml`:
+
+```yaml
+SESSION_COOKIE_SECURE: "1"
+```
+
+Then restart the container:
 
 ```bash
 sudo docker compose up -d
@@ -226,7 +245,7 @@ Then hard refresh the browser.
 - Files served through `/api/raw` now force downloads for active web content such as HTML, SVG, XML, JavaScript, and CSS.
 - Inline raw responses remain intended for safe media/document preview cases like images, audio, video, and PDFs.
 - Rename operations are limited to the current directory; cross-directory relocation should use the move action.
-- The app no longer manages passwords, sessions, or cookies. Protect it with nginx auth, VPN, Tailscale, or network-level access controls if needed.
+- The app now manages its own password login. The password is the `PASSWORD` value you set in your environment.
 
 ## Project Structure
 
