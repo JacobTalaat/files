@@ -50,7 +50,11 @@ function createApp(config) {
     },
   }));
 
-  const auth = (req, res, next) => (req.session.auth ? next() : res.status(401).json({ error: 'Unauthorized' }));
+  const auth = (req, res, next) => (
+    !config.authRequired || req.session.auth
+      ? next()
+      : res.status(401).json({ error: 'Unauthorized' })
+  );
   const loginLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     limit: 10,

@@ -18,6 +18,11 @@ function assertRequiredString(name, value, minLength) {
   return normalized;
 }
 
+function optionalString(value) {
+  const normalized = String(value || '').trim();
+  return normalized || '';
+}
+
 function assertRootDir(value) {
   const normalized = String(value || '').trim();
   if (!normalized) {
@@ -26,11 +31,33 @@ function assertRootDir(value) {
   return normalized;
 }
 
+function getAuthConfig(password, sessionSecret) {
+  const normalizedPassword = optionalString(password);
+  const normalizedSecret = optionalString(sessionSecret);
+
+  if (!normalizedPassword) {
+    return {
+      authRequired: false,
+      password: '',
+      sessionSecret: normalizedSecret || 'local-dev-session-secret',
+    };
+  }
+
+  return {
+    authRequired: true,
+    password: assertRequiredString('PASSWORD', normalizedPassword, 12),
+    sessionSecret: assertRequiredString('SESSION_SECRET', normalizedSecret, 24),
+  };
+}
+
+const authConfig = getAuthConfig(process.env.PASSWORD, process.env.SESSION_SECRET);
+
 const config = {
   port: Number(process.env.PORT || 9000),
   rootDir: assertRootDir(process.env.ROOT_DIR),
-  password: assertRequiredString('PASSWORD', process.env.PASSWORD, 12),
-  sessionSecret: assertRequiredString('SESSION_SECRET', process.env.SESSION_SECRET, 24),
+  authRequired: authConfig.authRequired,
+  password: authConfig.password,
+  sessionSecret: authConfig.sessionSecret,
   sessionCookieSecure: isEnabled(process.env.SESSION_COOKIE_SECURE),
   sessionDir: '.sessions',
   maxPreviewBytes: 500_000,

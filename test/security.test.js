@@ -110,6 +110,7 @@ async function createFixture() {
   const config = {
     port: 0,
     rootDir,
+    authRequired: true,
     password: 'test-password-123',
     sessionSecret: 'test-session-secret-1234567890',
     sessionCookieSecure: false,
@@ -227,8 +228,8 @@ test('config rejects missing required root dir and placeholder secrets', async (
   try {
     delete require.cache[require.resolve('../server/config')];
     process.env.PORT = '9000';
-    process.env.PASSWORD = 'valid-password-123';
-    process.env.SESSION_SECRET = 'valid-session-secret-123456789';
+    process.env.PASSWORD = '';
+    process.env.SESSION_SECRET = '';
     process.env.ROOT_DIR = '';
     assert.throws(() => require('../server/config'), /ROOT_DIR is required/);
 
@@ -237,6 +238,13 @@ test('config rejects missing required root dir and placeholder secrets', async (
     process.env.PASSWORD = 'change-me';
     process.env.SESSION_SECRET = 'valid-session-secret-123456789';
     assert.throws(() => require('../server/config'), /PASSWORD must be at least 12 characters long|PASSWORD must not use a placeholder value/);
+
+    delete require.cache[require.resolve('../server/config')];
+    process.env.ROOT_DIR = '/tmp/files-root';
+    process.env.PASSWORD = '';
+    process.env.SESSION_SECRET = '';
+    const config = require('../server/config');
+    assert.equal(config.authRequired, false);
   } finally {
     delete require.cache[require.resolve('../server/config')];
     for (const key of envKeys) {

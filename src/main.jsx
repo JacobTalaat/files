@@ -173,6 +173,7 @@ function createTerminalLine(text) {
 function App() {
   const [authChecked, setAuthChecked] = useState(false);
   const [isAuthed, setIsAuthed] = useState(false);
+  const [authRequired, setAuthRequired] = useState(true);
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -245,6 +246,7 @@ function App() {
   useEffect(() => {
     apiFetch('/api/check')
       .then((data) => {
+        setAuthRequired(data.authRequired !== false);
         setIsAuthed(!!data.auth);
         if (data.auth) bootstrap('/');
       })
@@ -646,7 +648,7 @@ function App() {
     return <div className="boot-screen">BOOTING SOVEREIGN CONSOLE...</div>;
   }
 
-  if (!isAuthed) {
+  if (authRequired && !isAuthed) {
     return (
       <div className="login-screen">
         <div className="login-rings">
@@ -666,7 +668,7 @@ function App() {
               <h1>JACOB_FS</h1>
               <div className="auth-meta">
                 <span>OPERATOR: LOCAL_SYSTEM</span>
-                <span>STATUS: ENCRYPTED_LOCKED</span>
+                <span>STATUS: ACCESS_GATE_ACTIVE</span>
               </div>
             </div>
             <label className="auth-field">
@@ -752,9 +754,11 @@ function App() {
           <button className="icon-button" onClick={() => setActivePanel('explorer')} type="button">
             <span className="material-symbols-outlined">terminal</span>
           </button>
-          <button className="icon-button" onClick={handleLogout} type="button">
-            <span className="material-symbols-outlined">power_settings_new</span>
-          </button>
+          {authRequired ? (
+            <button className="icon-button" onClick={handleLogout} type="button">
+              <span className="material-symbols-outlined">power_settings_new</span>
+            </button>
+          ) : null}
         </div>
       </header>
 

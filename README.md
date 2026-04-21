@@ -1,10 +1,10 @@
 # FILES
 
-A self-hosted, password-protected web file manager with a React frontend and an Express filesystem API. It is designed for simple VPS deployment behind Docker and a reverse proxy.
+A self-hosted web file manager with a React frontend and an Express filesystem API. It is designed for simple VPS deployment behind Docker and a reverse proxy.
 
 ## Features
 
-- Password-protected login with persistent session cookies
+- Optional password-protected login with persistent session cookies
 - Browse directories, navigate breadcrumbs, and switch between list/grid explorer views
 - Upload files and folders
 - Download files, folders, or batch selections
@@ -38,11 +38,13 @@ npm install
 ```env
 PORT=9000
 ROOT_DIR=/home/youruser
-PASSWORD=choose-a-strong-password
-SESSION_SECRET=choose-a-long-random-secret
+PASSWORD=
+SESSION_SECRET=
 SESSION_COOKIE_SECURE=
 BOOKMARKS=/,/Documents,/Downloads
 ```
+
+Leave `PASSWORD` empty to disable the in-app login screen.
 
 4. Build the frontend bundle:
 
@@ -68,12 +70,12 @@ http://localhost:9000
 | --- | --- | --- |
 | `PORT` | Port the server listens on | `9000` |
 | `ROOT_DIR` | Absolute path to the directory exposed by the file manager | required |
-| `PASSWORD` | Login password for the UI | required |
-| `SESSION_SECRET` | Secret used to sign session cookies | required |
+| `PASSWORD` | Login password for the UI | optional |
+| `SESSION_SECRET` | Secret used to sign session cookies | required only when `PASSWORD` is set |
 | `SESSION_COOKIE_SECURE` | Set to `1` when running behind HTTPS | empty |
 | `BOOKMARKS` | Comma-separated sidebar bookmarks under `ROOT_DIR` | auto-generated if empty |
 
-The server now refuses to start if `ROOT_DIR`, `PASSWORD`, or `SESSION_SECRET` are missing or still set to placeholder values.
+The server requires `ROOT_DIR`. If `PASSWORD` is set, `SESSION_SECRET` is also required and both must be non-placeholder values.
 
 ## Docker
 
@@ -93,8 +95,8 @@ services:
     environment:
       PORT: "9000"
       ROOT_DIR: "/data"
-      PASSWORD: "choose-a-strong-password"
-      SESSION_SECRET: "choose-a-long-random-secret"
+      PASSWORD: ""
+      SESSION_SECRET: ""
       SESSION_COOKIE_SECURE: ""
     volumes:
       - /home/youruser/files-data:/data
@@ -158,8 +160,8 @@ services:
     environment:
       PORT: "9000"
       ROOT_DIR: "/data"
-      PASSWORD: "choose-a-strong-password"
-      SESSION_SECRET: "choose-a-long-random-secret"
+      PASSWORD: ""
+      SESSION_SECRET: ""
       SESSION_COOKIE_SECURE: ""
     volumes:
       - /home/jacob/files-data:/data
@@ -246,6 +248,7 @@ Then hard refresh the browser.
 - Files served through `/api/raw` now force downloads for active web content such as HTML, SVG, XML, JavaScript, and CSS.
 - Inline raw responses remain intended for safe media/document preview cases like images, audio, video, and PDFs.
 - Rename operations are limited to the current directory; cross-directory relocation should use the move action.
+- The in-app login is optional. If nginx or your network already protects the app, leave `PASSWORD` unset.
 
 ## Project Structure
 

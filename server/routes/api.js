@@ -85,6 +85,11 @@ function createApiRouter({ config, service, auth, loginLimiter }) {
   }).array('folder');
 
   router.post('/login', loginLimiter, (req, res, next) => {
+    if (!config.authRequired) {
+      res.json({ ok: true, authRequired: false });
+      return;
+    }
+
     if (req.body.password === config.password) {
       req.session.regenerate((error) => {
         if (error) {
@@ -100,6 +105,11 @@ function createApiRouter({ config, service, auth, loginLimiter }) {
   });
 
   router.post('/logout', (req, res) => {
+    if (!config.authRequired) {
+      res.json({ ok: true });
+      return;
+    }
+
     req.session.destroy(() => {
       res.clearCookie('connect.sid');
       res.json({ ok: true });
@@ -107,7 +117,10 @@ function createApiRouter({ config, service, auth, loginLimiter }) {
   });
 
   router.get('/check', (req, res) => {
-    res.json({ auth: !!req.session.auth });
+    res.json({
+      auth: config.authRequired ? !!req.session.auth : true,
+      authRequired: config.authRequired,
+    });
   });
 
   router.get('/files', auth, wrapAsync(async (req, res) => {
