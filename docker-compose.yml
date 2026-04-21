@@ -1,0 +1,14 @@
+services:
+  jacob-files:
+    build: .
+    ports:
+      - "9000:9000"
+    environment:
+      PORT: "9000"
+      ROOT_DIR: "/data"
+      PASSWORD: "change-me"
+      SESSION_SECRET: "change-me-to-a-long-random-string"
+      SESSION_COOKIE_SECURE: ""
+    volumes:
+      - ./data:/data
+

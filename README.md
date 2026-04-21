@@ -30,7 +30,13 @@ cd files
 npm install
 ```
 
-3. Copy the example environment file and fill in your values:
+3. Build the production CSS bundle:
+
+```bash
+npm run build:css
+```
+
+4. Copy the example environment file and fill in your values:
 
 ```bash
 cp .env.example .env
@@ -46,6 +52,8 @@ Edit `.env` with your settings:
 | `ROOT_DIR`       | Absolute path to the directory to expose         | `/home/jacob`  |
 | `PASSWORD`       | Login password for the web UI                    | *(required)*   |
 | `SESSION_SECRET` | Secret key used to sign session cookies          | *(required)*   |
+| `SESSION_COOKIE_SECURE` | Set to `1` if behind HTTPS proxy         | *(optional)*   |
+| `BOOKMARKS`       | Comma-separated sidebar bookmarks (paths under `ROOT_DIR`) | *(optional)* |
 
 Example `.env`:
 
@@ -54,22 +62,67 @@ PORT=9000
 ROOT_DIR=/home/youruser
 PASSWORD=yourpassword
 SESSION_SECRET=some-long-random-string
+SESSION_COOKIE_SECURE=
+BOOKMARKS=/,/Documents,/Downloads
 ```
 
 ## Running
 
 ```bash
-node server.js
+npm start
 ```
 
 Then open `http://localhost:9000` (or your configured port) in a browser.
+
+## HTTPS / TLS (recommended)
+
+Do **not** expose this app over plain HTTP on the public internet. Put it behind a reverse proxy that terminates TLS.
+
+### Caddy (simple)
+
+Example `Caddyfile`:
+
+```
+files.example.com {
+  reverse_proxy 127.0.0.1:9000
+}
+```
+
+Then set `SESSION_COOKIE_SECURE=1` in `.env` so cookies are marked `Secure`.
+
+### Nginx (example)
+
+```
+server {
+  listen 443 ssl;
+  server_name files.example.com;
+
+  location / {
+    proxy_pass http://127.0.0.1:9000;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  }
+}
+```
+
+## Docker
+
+Build and run with Compose:
+
+```bash
+docker compose up --build
+```
 
 ## Project Structure
 
 ```
 files/
 ├── public/
-│   └── index.html       # Browser UI (single-page app)
+│   ├── index.html       # Browser UI (single-page app)
+│   ├── app.js           # Frontend logic
+│   ├── tailwind.css     # Compiled Tailwind CSS (build artifact)
+│   └── tailwind.input.css
 ├── server.js            # Express server and API routes
 ├── package.json
 ├── .env                 # Your local config (gitignored)
