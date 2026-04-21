@@ -4,7 +4,6 @@ A self-hosted web file manager with a React frontend and an Express filesystem A
 
 ## Features
 
-- Optional password-protected login with persistent session cookies
 - Browse directories, navigate breadcrumbs, and switch between list/grid explorer views
 - Upload files and folders
 - Download files, folders, or batch selections
@@ -38,13 +37,8 @@ npm install
 ```env
 PORT=9000
 ROOT_DIR=/home/youruser
-PASSWORD=
-SESSION_SECRET=
-SESSION_COOKIE_SECURE=
 BOOKMARKS=/,/Documents,/Downloads
 ```
-
-Leave `PASSWORD` empty to disable the in-app login screen.
 
 4. Build the frontend bundle:
 
@@ -70,12 +64,8 @@ http://localhost:9000
 | --- | --- | --- |
 | `PORT` | Port the server listens on | `9000` |
 | `ROOT_DIR` | Absolute path to the directory exposed by the file manager | required |
-| `PASSWORD` | Login password for the UI | optional |
-| `SESSION_SECRET` | Secret used to sign session cookies | required only when `PASSWORD` is set |
-| `SESSION_COOKIE_SECURE` | Set to `1` when running behind HTTPS | empty |
 | `BOOKMARKS` | Comma-separated sidebar bookmarks under `ROOT_DIR` | auto-generated if empty |
-
-The server requires `ROOT_DIR`. If `PASSWORD` is set, `SESSION_SECRET` is also required and both must be non-placeholder values.
+The server requires `ROOT_DIR`.
 
 ## Docker
 
@@ -95,9 +85,6 @@ services:
     environment:
       PORT: "9000"
       ROOT_DIR: "/data"
-      PASSWORD: ""
-      SESSION_SECRET: ""
-      SESSION_COOKIE_SECURE: ""
     volumes:
       - /home/youruser/files-data:/data
 ```
@@ -160,9 +147,6 @@ services:
     environment:
       PORT: "9000"
       ROOT_DIR: "/data"
-      PASSWORD: ""
-      SESSION_SECRET: ""
-      SESSION_COOKIE_SECURE: ""
     volumes:
       - /home/jacob/files-data:/data
 ```
@@ -207,13 +191,7 @@ sudo systemctl restart caddy
 sudo systemctl status caddy
 ```
 
-After HTTPS is working, update `docker-compose.yml`:
-
-```yaml
-SESSION_COOKIE_SECURE: "1"
-```
-
-Then restart the container:
+After HTTPS is working, restart the container:
 
 ```bash
 sudo docker compose up -d
@@ -248,7 +226,7 @@ Then hard refresh the browser.
 - Files served through `/api/raw` now force downloads for active web content such as HTML, SVG, XML, JavaScript, and CSS.
 - Inline raw responses remain intended for safe media/document preview cases like images, audio, video, and PDFs.
 - Rename operations are limited to the current directory; cross-directory relocation should use the move action.
-- The in-app login is optional. If nginx or your network already protects the app, leave `PASSWORD` unset.
+- The app no longer manages passwords, sessions, or cookies. Protect it with nginx auth, VPN, Tailscale, or network-level access controls if needed.
 
 ## Project Structure
 

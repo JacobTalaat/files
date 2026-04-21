@@ -6,8 +6,5 @@ services:
     environment:
       PORT: "9000"
       ROOT_DIR: "/data"
-      PASSWORD: ""
-      SESSION_SECRET: ""
-      SESSION_COOKIE_SECURE: ""
     volumes:
       - ./data:/data
