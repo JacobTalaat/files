@@ -1,4 +1,4 @@
-# Sovereign Console
+# FILES
 
 A self-hosted, password-protected web file manager with a React frontend and an Express filesystem API. It is designed for simple VPS deployment behind Docker and a reverse proxy.
 
