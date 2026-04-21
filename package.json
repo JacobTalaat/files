@@ -5,7 +5,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "build:css": "tailwindcss -c tailwind.config.js -i ./public/tailwind.input.css -o ./public/tailwind.css --minify"
+    "build:css": "tailwindcss -i ./public/tailwind.input.css -o ./public/tailwind.css --minify"
   },
   "dependencies": {
     "archiver": "^7.0.1",
