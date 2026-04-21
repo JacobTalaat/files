@@ -382,7 +382,7 @@ function renderListView(c){
     var icon  = fileIconName(f.name, f.isDir);
 
     var rowBase = 'grid border-b py-3 px-4 items-center cursor-pointer font-grotesk text-xs';
-    var rowStyle = 'grid-template-columns:1fr 80px 130px 100px 150px';
+    var rowStyle = 'grid-template-columns:28px 1fr 80px 130px 100px 150px';
     var rowCls = (sel || isSel)
       ? rowBase + ' border-[#00FF41] bg-[#1A1A1A]'
       : rowBase + ' border-[#333333] hover:bg-[#1A1A1A] group';
@@ -430,7 +430,7 @@ function renderListView(c){
 
 // ── Grid view ─────────────────────────────────────────────────────────────────
 function renderGridView(c){
-  var html = '<div class="grid gap-px bg-[#333333] border border-[#333333]" style="grid-template-columns:repeat(auto-fill,minmax(140px,1fr))">';
+  var html = '<div class="grid gap-px bg-[#333333] border border-[#333333]" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr))">';
 
   filteredFiles.forEach(function(f){
     var fp   = joinPath(currentPath, f.name);

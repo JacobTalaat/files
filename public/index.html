@@ -72,7 +72,7 @@
 
   /* Modal */
   .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.85); z-index:2000; display:flex; align-items:flex-end; justify-content:center; }
-  @media(min-width:641px) { .modal-overlay { align-items:center; } }
+  @media(min-width:768px) { .modal-overlay { align-items:center; } }
   .modal { background:#131313; border:1px solid #333333; padding:24px; width:100%; max-width:400px; animation:slideUp .2s ease; }
   .modal h3 { font-size:12px; font-family:'Space Grotesk',sans-serif; text-transform:uppercase; letter-spacing:.1em; color:#00FF41; margin-bottom:16px; }
   .modal input { width:100%; background:#0c160a; border:1px solid #333333; padding:10px 12px; color:#dae6d2; font-family:'Space Grotesk',sans-serif; font-size:13px; outline:none; margin-bottom:16px; -webkit-appearance:none; }
@@ -596,8 +596,8 @@
   </footer>
 
   <!-- MOBILE FAB ───────────────────────────────────────── -->
-  <div id="fab-mobile" style="display:none" class="fixed z-50" style="bottom:36px;right:24px">
-    <div id="fab-menu-mobile" style="display:none;flex-direction:column;align-items:flex-end;gap:8px;margin-bottom:12px">
+  <div id="fab-mobile" style="display:none" class="fixed bottom-9 right-6 z-50 flex flex-col items-end gap-3">
+    <div id="fab-menu-mobile" style="display:none;flex-direction:column;align-items:flex-end;gap:8px">
       <button onclick="triggerUpload(false);closeFab()"
         class="flex items-center gap-2 bg-[#131313] border border-[#333333] px-4 py-2 font-grotesk text-xs uppercase text-[#dae6d2] hover:border-[#00FF41] hover:text-[#00FF41] whitespace-nowrap">
         <span class="material-symbols-outlined" style="font-size:14px">upload_file</span>UPLOAD_FILES
@@ -612,7 +612,7 @@
       </button>
     </div>
     <button id="fab-btn-mobile" onclick="toggleFab()"
-      class="w-14 h-14 bg-[#00FF41] text-black flex items-center justify-center border-2 border-black hover:bg-white active:scale-95 shadow-none" style="bottom:36px;right:24px;position:fixed">
+      class="w-14 h-14 bg-[#00FF41] text-black flex items-center justify-center border-2 border-black hover:bg-white active:scale-95">
       <span class="material-symbols-outlined font-bold" style="font-variation-settings:'FILL' 1;font-size:24px">add</span>
     </button>
   </div>
