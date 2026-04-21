@@ -46,14 +46,14 @@ cp .env.example .env
 
 Edit `.env` with your settings:
 
-| Variable         | Description                                      | Default        |
-|------------------|--------------------------------------------------|----------------|
-| `PORT`           | Port the server listens on                       | `9000`         |
-| `ROOT_DIR`       | Absolute path to the directory to expose         | `/home/jacob`  |
-| `PASSWORD`       | Login password for the web UI                    | *(required)*   |
-| `SESSION_SECRET` | Secret key used to sign session cookies          | *(required)*   |
-| `SESSION_COOKIE_SECURE` | Set to `1` if behind HTTPS proxy         | *(optional)*   |
-| `BOOKMARKS`       | Comma-separated sidebar bookmarks (paths under `ROOT_DIR`) | *(optional)* |
+| Variable                | Description                                                | Default       |
+| ----------------------- | ---------------------------------------------------------- | ------------- |
+| `PORT`                  | Port the server listens on                                 | `9000`        |
+| `ROOT_DIR`              | Absolute path to the directory to expose                   | `/home/jacob` |
+| `PASSWORD`              | Login password for the web UI                              | _(required)_  |
+| `SESSION_SECRET`        | Secret key used to sign session cookies                    | _(required)_  |
+| `SESSION_COOKIE_SECURE` | Set to `1` if behind HTTPS proxy                           | _(optional)_  |
+| `BOOKMARKS`             | Comma-separated sidebar bookmarks (paths under `ROOT_DIR`) | _(optional)_  |
 
 Example `.env`:
 

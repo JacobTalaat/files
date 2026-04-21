@@ -2,11 +2,9 @@ FROM node:18-slim AS build
 WORKDIR /app
 
 COPY package.json package-lock.json ./
-RUN npm ci --include=optional
+RUN npm ci --omit=dev
 
 COPY . .
-RUN npm run build:css
-RUN npm prune --omit=dev
 
 FROM node:18-slim AS runtime
 WORKDIR /app
