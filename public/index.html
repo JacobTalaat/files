@@ -8,15 +8,110 @@
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/tailwind.css">
 <style>
+  :root {
+    --bg: #081006;
+    --bg-soft: #0c160a;
+    --panel: #10180f;
+    --panel-strong: #131d12;
+    --panel-muted: #182216;
+    --line: #253123;
+    --line-strong: #334131;
+    --text: #dae6d2;
+    --muted: #8ea084;
+    --accent: #00ff41;
+    --accent-soft: rgba(0, 255, 65, 0.12);
+    --accent-glow: rgba(0, 255, 65, 0.18);
+  }
   .material-symbols-outlined {
     font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
     font-size: 18px; line-height: 1; vertical-align: middle;
   }
-  body { background-color: #0c160a; color: #dae6d2; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+  body {
+    background:
+      radial-gradient(circle at top, rgba(0, 255, 65, 0.08), transparent 30%),
+      linear-gradient(180deg, #091107 0%, #081006 100%);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(to right, rgba(51, 65, 49, 0.12) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(51, 65, 49, 0.12) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.6), transparent 88%);
+    z-index: -1;
+  }
+  .console-shell {
+    background: rgba(16, 24, 15, 0.92);
+    backdrop-filter: blur(10px);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
+  }
+  .console-panel {
+    background: linear-gradient(180deg, rgba(19, 29, 18, 0.94), rgba(13, 21, 12, 0.98));
+    border: 1px solid var(--line);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), 0 0 0 1px rgba(0,0,0,0.25);
+  }
+  .console-panel-muted {
+    background: rgba(12, 22, 10, 0.88);
+    border: 1px solid var(--line);
+  }
+  .console-title {
+    font-family: 'Space Grotesk', sans-serif;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+  }
+  .console-kicker {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 10px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .console-button {
+    border: 1px solid var(--line-strong);
+    background: rgba(12, 22, 10, 0.86);
+    color: var(--text);
+    transition: border-color .18s ease, color .18s ease, background .18s ease, transform .18s ease;
+  }
+  .console-button:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(0, 255, 65, 0.06);
+  }
+  .console-button-primary {
+    border: 1px solid var(--accent);
+    background: linear-gradient(180deg, #00ff41 0%, #79ff7c 100%);
+    color: #041006;
+    box-shadow: 0 0 24px rgba(0,255,65,0.14);
+  }
+  .console-button-primary:hover {
+    background: linear-gradient(180deg, #a6ffac 0%, #efffee 100%);
+    color: #041006;
+  }
+  .status-dot {
+    box-shadow: 0 0 12px rgba(0,255,65,0.5);
+  }
+  .section-frame {
+    border: 1px solid var(--line);
+    background: linear-gradient(180deg, rgba(24, 34, 22, 0.86), rgba(13, 21, 12, 0.9));
+    position: relative;
+  }
+  .section-frame::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border-top: 1px solid rgba(255,255,255,0.03);
+  }
 
   /* Scrollbar */
   ::-webkit-scrollbar { width: 4px; height: 4px; }
-  ::-webkit-scrollbar-track { background: #131313; }
+  ::-webkit-scrollbar-track { background: #10180f; }
   ::-webkit-scrollbar-thumb { background: #00FF41; }
 
   /* Animations */
@@ -41,15 +136,16 @@
 
   /* Context menu */
   .ctx-menu {
-    position: fixed; background: #131313; border: 1px solid #333333;
+    position: fixed; background: #10180f; border: 1px solid var(--line-strong);
     padding: 4px; min-width: 180px; z-index: 1000; animation: fadeIn .1s ease;
+    box-shadow: 0 18px 60px rgba(0,0,0,.45);
   }
   .ctx-item {
     display: flex; align-items: center; gap: 8px; padding: 8px 10px;
     cursor: pointer; font-size: 11px; font-family: 'Space Grotesk', sans-serif;
     text-transform: uppercase; letter-spacing: .05em; color: #b9ccb2;
   }
-  .ctx-item:hover { background: #1A1A1A; color: #00FF41; }
+  .ctx-item:hover { background: rgba(0,255,65,.07); color: #00FF41; }
   .ctx-item.danger { color: #ffb4ab; }
   .ctx-item.danger:hover { background: rgba(147,0,10,.3); color: #ffb4ab; }
   .ctx-sep { height: 1px; background: #333333; margin: 4px 0; }
@@ -81,10 +177,11 @@
 
   /* Toast */
   .toast {
-    position:fixed; bottom:36px; right:20px; background:#131313;
-    border:1px solid #333333; border-left:2px solid #00FF41;
+    position:fixed; bottom:36px; right:20px; background:#10180f;
+    border:1px solid var(--line-strong); border-left:2px solid #00FF41;
     padding:12px 16px; min-width:260px; z-index:3000; animation:slideUp .3s ease;
     font-family:'Space Grotesk',sans-serif;
+    box-shadow: 0 18px 48px rgba(0,0,0,.38);
   }
   .toast-title { font-size:11px; font-weight:700; color:#00FF41; text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px; }
   .toast-sub   { font-size:10px; color:#84967e; text-transform:uppercase; margin-bottom:8px; min-height:12px; }
@@ -127,6 +224,20 @@
     #fab-mobile { display:flex !important; }
     #desktop-search { display:none !important; }
   }
+  .explorer-hero {
+    background:
+      linear-gradient(135deg, rgba(0,255,65,0.12), transparent 48%),
+      linear-gradient(180deg, rgba(19,29,18,.96), rgba(8,16,6,.96));
+  }
+  .metric-card {
+    border: 1px solid var(--line);
+    background: linear-gradient(180deg, rgba(18,28,17,.92), rgba(10,17,9,.96));
+  }
+  .terminal-window {
+    background: linear-gradient(180deg, rgba(8,10,8,.98), rgba(0,0,0,.98));
+    border-left: 1px solid var(--line);
+    border-top: 1px solid var(--line);
+  }
 </style>
 </head>
 <body>
@@ -137,19 +248,19 @@
 <!-- ═══════════════════════════════════════════════════════
      LOGIN SCREEN
 ════════════════════════════════════════════════════════ -->
-<div id="login-screen" class="min-h-screen flex flex-col items-center justify-center p-4 bg-[#0c160a]">
+<div id="login-screen" class="min-h-screen flex flex-col items-center justify-center p-4 bg-transparent">
   <!-- BG decoration -->
   <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none opacity-5">
     <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] border border-[#00FF41] rounded-full"></div>
     <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1100px] h-[1100px] border border-[#00FF41] rounded-full"></div>
   </div>
 
-  <div class="w-full max-w-[460px] border border-[#333333] bg-[#131313]" style="animation:slideUp .4s ease">
+  <div class="w-full max-w-[480px] console-panel overflow-hidden" style="animation:slideUp .4s ease">
     <!-- Terminal title bar -->
-    <div class="flex items-center justify-between border-b border-[#333333] px-4 h-10 bg-[#1A1A1A]">
+    <div class="flex items-center justify-between border-b border-[var(--line)] px-4 h-10 bg-[rgba(255,255,255,0.02)]">
       <div class="flex items-center gap-2">
         <span class="w-2 h-2 bg-[#00FF41]"></span>
-        <span class="font-grotesk text-xs text-[#00FF41] tracking-widest uppercase">JM // SECURE_AUTH_V4.0</span>
+        <span class="font-grotesk text-xs text-[#00FF41] tracking-[0.18em] uppercase">JM // SECURE_AUTH_V4.0</span>
       </div>
       <div class="flex gap-2 opacity-30">
         <span class="w-6 h-[1px] bg-[#dae6d2] mt-[5px]"></span>
@@ -158,10 +269,10 @@
     </div>
 
     <!-- Body -->
-    <div class="p-8 flex flex-col gap-10">
+      <div class="p-8 md:p-10 flex flex-col gap-10">
       <!-- Brand -->
       <div>
-        <h1 class="font-grotesk text-4xl font-black text-[#00FF41] uppercase tracking-tight mb-2">JACOB_FS</h1>
+          <h1 class="font-grotesk text-4xl md:text-5xl font-black text-[#00FF41] uppercase tracking-[-0.04em] mb-2">JACOB_FS</h1>
         <div class="flex items-center gap-2 flex-wrap">
           <span class="font-grotesk text-[10px] text-zinc-500 uppercase tracking-widest">OPERATOR:</span>
           <span class="font-grotesk text-[10px] text-[#dae6d2] uppercase">LOCAL_SYSTEM</span>
@@ -177,8 +288,8 @@
           <div class="absolute -top-3 left-4 px-2 bg-[#131313] z-10">
             <label class="font-grotesk text-[10px] text-[#00FF41] tracking-widest uppercase" for="pwd-input">ENTER_KEY</label>
           </div>
-          <div class="flex border border-[#333333] focus-within:border-[#00FF41]" style="transition:border-color .2s">
-            <div class="flex items-center justify-center w-12 border-r border-[#333333]">
+          <div class="flex border border-[var(--line-strong)] bg-[rgba(6,14,6,0.7)] focus-within:border-[#00FF41]" style="transition:border-color .2s, box-shadow .2s">
+            <div class="flex items-center justify-center w-12 border-r border-[var(--line)]">
               <span class="material-symbols-outlined text-[#00FF41]" style="font-variation-settings:'FILL' 1">lock</span>
             </div>
             <div class="flex-1 flex items-center px-4 h-16 relative">
@@ -193,7 +304,7 @@
 
         <div class="flex flex-col gap-3">
           <button onclick="login()"
-            class="w-full h-14 bg-[#00FF41] text-black font-grotesk text-sm font-black uppercase tracking-widest hover:bg-white active:invert flex items-center justify-center gap-3">
+            class="w-full h-14 console-button-primary font-grotesk text-sm font-black uppercase tracking-[0.16em] active:invert flex items-center justify-center gap-3">
             <span>INITIALIZE_DECRYPTION</span>
             <span class="material-symbols-outlined">terminal</span>
           </button>
@@ -205,18 +316,18 @@
       </div>
 
       <!-- Decorative log strip -->
-      <div class="border-t border-[#333333] pt-4">
+      <div class="border-t border-[var(--line)] pt-4">
         <div class="flex justify-between font-grotesk text-[10px] text-zinc-600 mb-2">
           <span>[SYS] ATTEMPT_LOG: 0.0.0.0</span><span>READY</span>
         </div>
-        <div class="w-full bg-[#1A1A1A] h-1">
+        <div class="w-full bg-[rgba(255,255,255,0.03)] h-1">
           <div class="bg-[#00FF41] h-full" style="width:33%"></div>
         </div>
       </div>
     </div>
 
     <!-- Footer -->
-    <div class="border-t border-[#333333] px-4 py-2 flex justify-between items-center bg-[#1A1A1A]">
+    <div class="border-t border-[var(--line)] px-4 py-2 flex justify-between items-center bg-[rgba(255,255,255,0.02)]">
       <div class="flex gap-4">
         <span class="font-grotesk text-[10px] text-zinc-500 uppercase tracking-widest">Region: US-EAST</span>
         <span class="font-grotesk text-[10px] text-zinc-500 uppercase tracking-widest">Kernel: 6.1.0-V</span>
@@ -241,7 +352,7 @@
 <div id="app" style="display:none">
 
   <!-- TOP NAV ─────────────────────────────────────────── -->
-  <header class="flex justify-between items-center px-4 h-12 w-full fixed top-0 z-50 bg-[#131313] border-b border-[#333333]">
+  <header class="console-shell flex justify-between items-center px-4 h-12 w-full fixed top-0 z-50 border-b border-[var(--line)]">
     <div class="flex items-center gap-3">
       <button id="sidebar-toggle" onclick="toggleSidebar()" title="Menu">
         <span class="material-symbols-outlined">menu</span>
@@ -251,13 +362,13 @@
       </button>
       <span class="font-grotesk text-lg font-black tracking-tighter text-[#00FF41] hidden md:inline">JM</span>
       <nav class="hidden md:flex gap-0 ml-3">
-        <button id="nav-explorer" onclick="showExplorer()" class="font-grotesk uppercase tracking-widest text-xs text-[#00FF41] font-bold px-3 py-1 hover:bg-[#1A1A1A]">EXPLORER</button>
-        <button id="nav-transfers" onclick="showTransfers()" class="font-grotesk uppercase tracking-widest text-xs text-zinc-500 hover:bg-[#1A1A1A] hover:text-[#00FF41] px-3 py-1">TRANSFERS</button>
-        <button id="nav-security" onclick="showSecurity()" class="font-grotesk uppercase tracking-widest text-xs text-zinc-500 hover:bg-[#1A1A1A] hover:text-[#00FF41] px-3 py-1">SECURITY</button>
+        <button id="nav-explorer" onclick="showExplorer()" class="font-grotesk uppercase tracking-[0.16em] text-xs text-[#00FF41] font-bold px-3 py-1 hover:bg-[rgba(0,255,65,0.06)]">EXPLORER</button>
+        <button id="nav-transfers" onclick="showTransfers()" class="font-grotesk uppercase tracking-[0.16em] text-xs text-zinc-500 hover:bg-[rgba(0,255,65,0.06)] hover:text-[#00FF41] px-3 py-1">TRANSFERS</button>
+        <button id="nav-security" onclick="showSecurity()" class="font-grotesk uppercase tracking-[0.16em] text-xs text-zinc-500 hover:bg-[rgba(0,255,65,0.06)] hover:text-[#00FF41] px-3 py-1">SECURITY</button>
       </nav>
     </div>
     <div class="flex items-center gap-2">
-      <div id="desktop-search" class="flex items-center bg-[#1A1A1A] border border-[#333333] px-2 h-8">
+      <div id="desktop-search" class="flex items-center bg-[rgba(8,16,6,0.8)] border border-[var(--line)] px-2 h-8">
         <span class="material-symbols-outlined text-zinc-500 mr-1" style="font-size:14px">search</span>
         <input type="text" id="search-input" placeholder="PATH_SEARCH..."
           class="bg-transparent border-none focus:ring-0 text-xs font-grotesk p-0 w-36 text-[#00FF41] placeholder:text-zinc-600 outline-none uppercase"
@@ -277,7 +388,7 @@
   </header>
 
   <!-- Mobile search bar -->
-  <div id="mobile-search-row" style="display:none" class="fixed top-12 left-0 right-0 z-40 bg-[#131313] border-b border-[#333333] px-4 py-2">
+  <div id="mobile-search-row" style="display:none" class="fixed top-12 left-0 right-0 z-40 console-shell border-b border-[var(--line)] px-4 py-2">
     <div class="flex gap-2 items-center">
       <input type="text" id="search-input-mobile" placeholder="QUERY_SYSTEM..."
         class="flex-1 bg-[#1A1A1A] border border-[#333333] focus:border-[#00FF41] px-3 py-2 text-xs font-grotesk text-[#00FF41] placeholder:text-zinc-600 outline-none uppercase"
@@ -292,7 +403,7 @@
   <div id="sidebar-backdrop" onclick="closeSidebar()"></div>
 
   <!-- SIDEBAR ──────────────────────────────────────────── -->
-  <aside id="app-sidebar" class="fixed left-0 top-12 bottom-0 flex flex-col pt-4 w-64 border-r border-[#333333] bg-[#131313] z-40 overflow-y-auto">
+  <aside id="app-sidebar" class="fixed left-0 top-12 bottom-0 flex flex-col pt-4 w-64 border-r border-[var(--line)] console-shell z-40 overflow-y-auto">
     <div class="px-4 mb-5">
       <h2 class="font-grotesk font-bold text-xs text-[#00FF41] uppercase tracking-tight">FS_OPERATOR</h2>
       <p class="font-grotesk text-[10px] text-zinc-500">V2.0.4-STABLE</p>
@@ -307,7 +418,7 @@
       <div class="flex items-center justify-between font-grotesk text-[10px] text-zinc-500 mb-2 uppercase">
         <span>DISK_LOAD</span><span class="text-[#00FF41]" id="disk-pct">—</span>
       </div>
-      <div class="h-1 bg-[#1A1A1A] border border-[#333333]">
+      <div class="h-1 bg-[rgba(255,255,255,0.03)] border border-[var(--line)]">
         <div class="h-full bg-[#00FF41]" id="disk-bar" style="width:0%"></div>
       </div>
       <div class="mt-3 flex items-center gap-2 font-grotesk text-[10px] text-zinc-400">
@@ -324,10 +435,11 @@
     <div id="explorer-view" class="p-4 md:p-6">
 
       <!-- Breadcrumb + action bar -->
-      <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 border-b border-[#333333] pb-4 gap-3">
+      <div class="explorer-hero section-frame flex flex-col md:flex-row justify-between items-start md:items-end mb-6 pb-4 gap-4 p-5 md:p-6">
         <div>
-          <div id="breadcrumb" class="font-grotesk text-[#00FF41] text-xl font-bold mb-1 uppercase"></div>
-          <div class="flex items-center gap-2 font-grotesk text-[10px] text-zinc-500 uppercase flex-wrap">
+          <div class="console-kicker mb-2">SYSTEM PATH</div>
+          <div id="breadcrumb" class="font-grotesk text-[#00FF41] text-2xl md:text-3xl font-bold mb-2 uppercase tracking-[-0.03em]"></div>
+          <div class="flex items-center gap-2 font-grotesk text-[10px] text-zinc-500 uppercase flex-wrap tracking-[0.12em]">
             <span id="file-count-bar">OBJECTS: 0</span>
             <span class="w-1 h-1 bg-zinc-700"></span>
             <span id="size-bar">SIZE: —</span>
@@ -335,9 +447,9 @@
             <span>OWNER: FS_ADMIN</span>
           </div>
         </div>
-        <div class="flex gap-2 flex-wrap items-center">
+          <div class="flex gap-2 flex-wrap items-center md:justify-end">
           <!-- View toggle -->
-          <div class="flex border border-[#333333]">
+          <div class="flex border border-[var(--line)] bg-[rgba(8,16,6,0.72)]">
             <button id="list-btn" onclick="setView('list')"
               class="w-8 h-8 flex items-center justify-center border-r border-[#333333] text-zinc-500 hover:text-[#00FF41]" title="List">
               <span class="material-symbols-outlined" style="font-size:15px">format_list_bulleted</span>
@@ -348,36 +460,36 @@
             </button>
           </div>
           <select onchange="sortFiles(this.value)"
-            class="bg-[#1A1A1A] border border-[#333333] text-zinc-400 font-grotesk text-xs uppercase px-2 h-8 outline-none cursor-pointer hover:border-[#00FF41]">
+            class="bg-[rgba(8,16,6,0.72)] border border-[var(--line)] text-zinc-400 font-grotesk text-xs uppercase px-2 h-8 outline-none cursor-pointer hover:border-[#00FF41]">
             <option value="name">SORT: NAME</option>
             <option value="size">SORT: SIZE</option>
             <option value="date">SORT: DATE</option>
             <option value="type">SORT: TYPE</option>
           </select>
           <button id="btn-mkdir" onclick="showMkdir()"
-            class="px-3 h-8 border border-[#333333] text-zinc-400 font-grotesk text-xs uppercase hover:border-[#00FF41] hover:text-[#00FF41] flex items-center gap-1">
+            class="px-3 h-8 console-button font-grotesk text-xs uppercase flex items-center gap-1">
             <span class="material-symbols-outlined" style="font-size:14px">create_new_folder</span>
             <span class="hidden md:inline">NEW_DIR</span>
           </button>
           <button id="btn-upload-files" onclick="triggerUpload(false)"
-            class="px-3 h-8 border border-[#333333] text-zinc-400 font-grotesk text-xs uppercase hover:border-[#00FF41] hover:text-[#00FF41] flex items-center gap-1">
+            class="px-3 h-8 console-button font-grotesk text-xs uppercase flex items-center gap-1">
             <span class="material-symbols-outlined" style="font-size:14px">upload_file</span>
             <span class="hidden md:inline">UPLOAD</span>
           </button>
           <button id="btn-upload-folder" onclick="triggerUpload(true)"
-            class="px-3 h-8 bg-[#00FF41] text-black font-grotesk text-xs font-black uppercase hover:bg-white flex items-center gap-1">
+            class="px-3 h-8 console-button-primary font-grotesk text-xs font-black uppercase flex items-center gap-1">
             <span class="material-symbols-outlined" style="font-size:14px">folder_zip</span>
             <span class="hidden md:inline">UPLOAD_DIR</span>
           </button>
           <button onclick="refreshFiles()"
-            class="w-8 h-8 flex items-center justify-center border border-[#333333] text-zinc-500 hover:border-[#00FF41] hover:text-[#00FF41]" title="Refresh">
+            class="w-8 h-8 flex items-center justify-center console-button text-zinc-500" title="Refresh">
             <span class="material-symbols-outlined" style="font-size:14px">refresh</span>
           </button>
         </div>
       </div>
 
       <!-- Multi-select bar -->
-      <div id="selection-bar" style="display:none" class="mb-4 border border-[#333333] bg-[#1A1A1A] px-4 py-3 flex items-center gap-3">
+      <div id="selection-bar" style="display:none" class="mb-4 section-frame px-4 py-3 flex items-center gap-3">
         <div class="font-grotesk text-[10px] text-zinc-500 uppercase tracking-widest">SELECTION</div>
         <div class="font-grotesk text-xs text-[#00FF41] uppercase font-bold" id="selection-count">0 SELECTED</div>
         <div class="ml-auto flex gap-2">
@@ -402,7 +514,7 @@
       <!-- Stats grid -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-10">
         <!-- NODE_PERFORMANCE -->
-        <div class="border border-[#333333] bg-[#1A1A1A] p-4">
+        <div class="metric-card p-4">
           <h3 class="font-grotesk text-xs text-[#00FF41] mb-4 flex items-center gap-2 uppercase tracking-widest">
             <span class="material-symbols-outlined" style="font-size:14px">analytics</span>NODE_PERFORMANCE
           </h3>
@@ -418,7 +530,7 @@
           </div>
         </div>
         <!-- NETWORK_TRAFFIC -->
-        <div class="border border-[#333333] bg-[#1A1A1A] p-4">
+        <div class="metric-card p-4">
           <h3 class="font-grotesk text-xs text-[#00FF41] mb-4 flex items-center gap-2 uppercase tracking-widest">
             <span class="material-symbols-outlined" style="font-size:14px">radar</span>NETWORK_TRAFFIC
           </h3>
@@ -431,7 +543,7 @@
           </div>
         </div>
         <!-- INTEGRITY_CHECK -->
-        <div class="border border-[#333333] bg-[#1A1A1A] p-4">
+        <div class="metric-card p-4">
           <h3 class="font-grotesk text-xs text-[#00FF41] mb-4 flex items-center gap-2 uppercase tracking-widest">
             <span class="material-symbols-outlined" style="font-size:14px">security</span>INTEGRITY_CHECK
           </h3>
@@ -458,7 +570,7 @@
 
     <!-- ── TRANSFERS VIEW ── -->
     <div id="transfers-view" style="display:none" class="p-4 md:p-6">
-      <div class="border border-[#333333] bg-[#1A1A1A] p-4">
+      <div class="section-frame p-4">
         <div class="font-grotesk text-xs text-[#00FF41] uppercase tracking-widest mb-2">TRANSFERS_LOG</div>
         <div class="font-grotesk text-[10px] text-zinc-500 uppercase mb-4">Recent uploads/downloads this session.</div>
         <div id="transfers-log" class="space-y-2 font-grotesk text-[11px] text-zinc-300"></div>
@@ -467,7 +579,7 @@
 
     <!-- ── SECURITY VIEW ── -->
     <div id="security-view" style="display:none" class="p-4 md:p-6">
-      <div class="border border-[#333333] bg-[#1A1A1A] p-4">
+      <div class="section-frame p-4">
         <div class="font-grotesk text-xs text-[#00FF41] uppercase tracking-widest mb-2">SECURITY_STATUS</div>
         <div class="space-y-2">
           <div class="flex justify-between border-b border-[#333333] py-2">
@@ -488,9 +600,9 @@
       <div class="grid grid-cols-1 lg:grid-cols-12" style="min-height:calc(100vh - 3rem - 24px)">
 
         <!-- Editor section -->
-        <section class="col-span-1 lg:col-span-9 border-r border-[#333333] bg-[#0c160a] flex flex-col">
+        <section class="col-span-1 lg:col-span-9 border-r border-[var(--line)] bg-[rgba(7,14,7,0.9)] flex flex-col">
           <!-- Toolbar -->
-          <div class="h-10 border-b border-[#333333] bg-[#1A1A1A] flex items-center justify-between px-4 flex-shrink-0">
+          <div class="h-10 border-b border-[var(--line)] bg-[rgba(255,255,255,0.03)] flex items-center justify-between px-4 flex-shrink-0">
             <div class="flex items-center gap-4 min-w-0">
               <div class="flex items-center gap-2 font-grotesk text-[10px] text-[#00FF41] uppercase truncate">
                 <span class="w-2 h-2 bg-[#00FF41] flex-shrink-0"></span>
@@ -525,8 +637,8 @@
         </section>
 
         <!-- Metadata sidebar -->
-        <aside class="col-span-1 lg:col-span-3 bg-[#131313] flex flex-col border-t lg:border-t-0 border-[#333333]">
-          <div class="p-4 border-b border-[#333333] bg-[#1A1A1A]">
+        <aside class="col-span-1 lg:col-span-3 console-shell flex flex-col border-t lg:border-t-0 border-[var(--line)]">
+          <div class="p-4 border-b border-[var(--line)] bg-[rgba(255,255,255,0.03)]">
             <h3 class="font-grotesk text-xs uppercase tracking-widest text-[#00FF41] mb-1">METADATA_EXPLORER</h3>
             <p class="font-grotesk text-[10px] text-zinc-500 uppercase truncate" id="preview-meta-name">FILE</p>
           </div>
@@ -580,10 +692,10 @@
   </main>
 
   <!-- STATUS FOOTER ────────────────────────────────────── -->
-  <footer id="status-footer" class="fixed bottom-0 md:left-64 left-0 right-0 h-6 bg-[#131313] border-t border-[#333333] flex items-center px-4 justify-between z-40">
+  <footer id="status-footer" class="fixed bottom-0 md:left-64 left-0 right-0 h-6 console-shell border-t border-[var(--line)] flex items-center px-4 justify-between z-40">
     <div class="flex items-center gap-4">
       <div class="flex items-center gap-1.5">
-        <span class="w-2 h-2 bg-[#00FF41]"></span>
+        <span class="w-2 h-2 bg-[#00FF41] status-dot"></span>
         <span class="font-grotesk text-[9px] text-zinc-500 uppercase">OPERATIONAL</span>
       </div>
       <span class="font-grotesk text-[9px] text-zinc-700">|</span>
@@ -619,7 +731,7 @@
 
   <!-- TERMINAL WIDGET ──────────────────────────────────── -->
   <div id="terminal-widget" style="display:none"
-    class="fixed bottom-6 right-0 w-72 bg-[#131313] border-l border-t border-[#333333] z-30">
+    class="terminal-window fixed bottom-6 right-0 w-72 z-30">
     <div class="bg-[#1A1A1A] px-3 py-2 flex justify-between items-center border-b border-[#333333]">
       <div class="flex items-center gap-2">
         <span class="material-symbols-outlined text-[#00FF41]" style="font-size:12px">terminal</span>

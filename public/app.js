@@ -366,14 +366,14 @@ function renderListView(c){
   var html = '';
 
   // Header
-  html += '<div class="grid border-b border-[#333333] bg-[#1A1A1A] font-grotesk text-[10px] uppercase tracking-widest text-zinc-500 py-2 px-4" style="grid-template-columns:28px 1fr 80px 130px 100px 150px">';
+  html += '<div class="grid border-b border-[var(--line)] bg-[rgba(255,255,255,0.03)] font-grotesk text-[10px] uppercase tracking-[0.16em] text-zinc-500 py-3 px-4" style="grid-template-columns:28px 1fr 80px 130px 100px 150px">';
   html += '<div></div><div>NAME</div><div class="text-right">SIZE</div>';
   html += '<div class="text-center hidden md:block">PERMISSIONS</div>';
   html += '<div class="text-center hidden md:block">SHA-256</div>';
   html += '<div class="text-right">LAST_MODIFIED</div>';
   html += '</div>';
 
-  html += '<div class="flex flex-col border-x border-[#333333]">';
+  html += '<div class="flex flex-col border-x border-[var(--line)] bg-[rgba(8,16,6,0.45)]">';
   filteredFiles.forEach(function(f){
     var fp = joinPath(currentPath, f.name);
     var sel = selectedFile === f.name;
@@ -381,11 +381,11 @@ function renderListView(c){
     var perms = f.perms || '—';
     var icon  = fileIconName(f.name, f.isDir);
 
-    var rowBase = 'grid border-b py-3 px-4 items-center cursor-pointer font-grotesk text-xs';
+    var rowBase = 'grid border-b py-3.5 px-4 items-center cursor-pointer font-grotesk text-xs transition-colors duration-150';
     var rowStyle = 'grid-template-columns:28px 1fr 80px 130px 100px 150px';
     var rowCls = (sel || isSel)
-      ? rowBase + ' border-[#00FF41] bg-[#1A1A1A]'
-      : rowBase + ' border-[#333333] hover:bg-[#1A1A1A] group';
+      ? rowBase + ' border-[#00FF41] bg-[linear-gradient(90deg,rgba(0,255,65,0.14),rgba(12,22,10,0.92))]'
+      : rowBase + ' border-[var(--line)] hover:bg-[rgba(0,255,65,0.05)] group';
 
     html += '<div class="' + rowCls + '" style="' + rowStyle + '"'
       + ' data-name="' + escAttr(f.name) + '" data-isdir="' + f.isDir + '"'
@@ -400,7 +400,7 @@ function renderListView(c){
     html += '</div>';
 
     // Name
-    html += '<div class="flex items-center gap-2 min-w-0">';
+    html += '<div class="flex items-center gap-3 min-w-0">';
     html += '<span class="material-symbols-outlined flex-shrink-0 ' + (sel||f.isDir ? 'text-[#00FF41]' : 'text-zinc-400 group-hover:text-[#00FF41]') + '" style="font-size:16px">' + icon + '</span>';
     html += '<span class="truncate font-bold ' + (sel ? 'text-[#00FF41] blink-cursor' : (f.isDir ? 'text-[#00FF41]' : 'text-zinc-300 group-hover:text-[#00FF41]')) + '">' + escHtml(f.name.toUpperCase()) + '</span>';
     html += '</div>';
@@ -410,11 +410,11 @@ function renderListView(c){
 
     // Permissions
     html += '<div class="text-center hidden md:flex justify-center">';
-    html += '<span class="px-1.5 py-0.5 border font-grotesk text-[10px] ' + (sel ? 'border-[#00FF41] text-[#00FF41] bg-[#003907]' : 'border-[#333333] text-zinc-400') + '">' + perms + '</span>';
+    html += '<span class="px-1.5 py-0.5 border font-grotesk text-[10px] ' + (sel ? 'border-[#00FF41] text-[#00FF41] bg-[#003907]' : 'border-[var(--line)] text-zinc-400 bg-[rgba(255,255,255,0.02)]') + '">' + perms + '</span>';
     html += '</div>';
 
     // Hash
-    html += '<div class="text-center hidden md:block font-grotesk text-[10px] ' + (sel ? 'text-[#00FF41]' : 'text-zinc-600') + '">—</div>';
+    html += '<div class="text-center hidden md:block font-grotesk text-[10px] ' + (sel ? 'text-[#00FF41]' : 'text-zinc-600') + '">PENDING</div>';
 
     // Date
     html += '<div class="text-right ' + (sel ? 'text-[#00FF41]' : 'text-zinc-500') + '">' + fmtDate(f.modified) + '</div>';
@@ -430,7 +430,7 @@ function renderListView(c){
 
 // ── Grid view ─────────────────────────────────────────────────────────────────
 function renderGridView(c){
-  var html = '<div class="grid gap-px bg-[#333333] border border-[#333333]" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr))">';
+  var html = '<div class="grid gap-px bg-[var(--line)] border border-[var(--line)]" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr))">';
 
   filteredFiles.forEach(function(f){
     var fp   = joinPath(currentPath, f.name);
@@ -441,7 +441,7 @@ function renderGridView(c){
     var ext   = getExt(f.name);
     var isCode = ['js','ts','jsx','tsx','py','c','cpp','sh','bash','json','yaml','yml','html','css','go','rs','rb','php','txt','md'].indexOf(ext) >= 0;
 
-    html += '<div class="bg-[#1A1A1A] p-4 flex flex-col gap-3 cursor-pointer border ' + (isSel ? 'border-[#00FF41]' : 'border-transparent') + ' hover:border-[#00FF41] active:bg-[#1A1A1A]/50 relative"'
+    html += '<div class="bg-[linear-gradient(180deg,rgba(19,29,18,0.96),rgba(10,17,9,0.98))] min-h-[198px] p-4 flex flex-col gap-3 cursor-pointer border ' + (isSel ? 'border-[#00FF41]' : 'border-transparent') + ' hover:border-[#00FF41] hover:bg-[linear-gradient(180deg,rgba(24,38,22,0.98),rgba(10,17,9,0.98))] active:bg-[#1A1A1A]/50 relative transition-colors duration-150"'
       + ' data-name="' + escAttr(f.name) + '" data-isdir="' + f.isDir + '"'
       + ' onclick="selectFile(\'' + esc(f.name) + '\',' + f.isDir + ',\'' + esc(fp) + '\')"'
       + ' ondblclick="' + (f.isDir ? 'navigate(\'' + esc(fp) + '\')' : 'previewFile(\'' + esc(f.name) + '\')') + '"'
@@ -453,20 +453,20 @@ function renderGridView(c){
       'onclick="event.stopPropagation();toggleSelectPath(\''+esc(fp)+'\')" class="h-4 w-4 accent-[#00FF41]" />';
     html += '</div>';
 
-    html += '<div class="flex justify-between items-start">';
+    html += '<div class="flex justify-between items-start pt-4">';
     html += '<span class="material-symbols-outlined text-4xl ' + (sel||f.isDir ? 'text-[#00FF41]' : 'text-zinc-500') + '">' + icon + '</span>';
-    html += '<span class="font-grotesk text-[10px] px-1 border ' + (sel ? 'border-[#00FF41] text-[#00FF41]' : 'border-zinc-700 text-zinc-600') + '">' + badge + '</span>';
+    html += '<span class="font-grotesk text-[10px] px-1.5 py-0.5 border tracking-[0.14em] ' + (sel ? 'border-[#00FF41] text-[#00FF41]' : 'border-[var(--line)] text-zinc-500 bg-[rgba(255,255,255,0.03)]') + '">' + badge + '</span>';
     html += '</div>';
 
     if(isCode && !f.isDir){
-      html += '<div class="h-12 w-full bg-[#131313] border border-[#333333] p-2 overflow-hidden">';
-      html += '<div class="font-grotesk text-[8px] text-[#00FF41] opacity-50 leading-tight">' + escHtml(f.name.toUpperCase()) + '</div>';
+      html += '<div class="h-16 w-full bg-[rgba(6,12,6,0.9)] border border-[var(--line)] p-2 overflow-hidden">';
+      html += '<div class="font-grotesk text-[8px] text-[#00FF41] opacity-50 leading-tight">const target = "' + escHtml(f.name.toUpperCase()) + '";</div>';
       html += '</div>';
     }
 
-    html += '<div>';
-    html += '<div class="font-grotesk text-xs font-bold ' + (sel ? 'text-[#00FF41]' : 'text-zinc-300') + ' uppercase truncate">' + escHtml(f.name.toUpperCase()) + '</div>';
-    html += '<div class="font-grotesk text-[10px] text-zinc-600 uppercase">' + (f.isDir ? '—' : fmtSize(f.size)) + '</div>';
+    html += '<div class="mt-auto">';
+    html += '<div class="font-grotesk text-xs font-bold tracking-[0.04em] ' + (sel ? 'text-[#00FF41]' : 'text-zinc-200') + ' uppercase truncate">' + escHtml(f.name.toUpperCase()) + '</div>';
+    html += '<div class="font-grotesk text-[10px] text-zinc-600 uppercase tracking-[0.12em] mt-1">' + (f.isDir ? 'DIRECTORY' : fmtSize(f.size)) + '</div>';
     html += '</div>';
     html += '</div>';
   });
@@ -478,8 +478,8 @@ function renderGridView(c){
 
 function showEmpty(msg){
   var c = document.getElementById('files-container');
-  c.innerHTML = '<div class="border border-[#333333] p-8 text-center">'
-    + '<div class="font-grotesk text-[#00FF41] text-xs uppercase tracking-widest mb-2">EMPTY_DIRECTORY</div>'
+  c.innerHTML = '<div class="section-frame p-10 text-center">'
+    + '<div class="font-grotesk text-[#00FF41] text-xs uppercase tracking-[0.18em] mb-2">EMPTY_DIRECTORY</div>'
     + '<div class="font-grotesk text-zinc-600 text-[10px] uppercase">' + escHtml(msg) + '</div>'
     + '</div>';
   attachDrop(c);
@@ -768,8 +768,8 @@ function previewFile(name){
           lines.forEach(function(_, i){ nums += (i+1)+'<br>'; });
           body.innerHTML =
             '<div class="flex">' +
-            '<div class="w-10 text-zinc-700 text-right pr-3 select-none border-r border-[#1a2218] mr-3 font-grotesk text-xs leading-relaxed flex-shrink-0" style="min-width:2.5rem">' + nums + '</div>' +
-            '<textarea id="preview-textarea" class="flex-1 bg-transparent text-[#dae6d2] font-grotesk text-xs leading-relaxed outline-none resize-none overflow-auto whitespace-pre" spellcheck="false"></textarea>' +
+            '<div class="w-10 text-zinc-700 text-right pr-3 select-none border-r border-[var(--line)] mr-3 font-grotesk text-xs leading-relaxed flex-shrink-0" style="min-width:2.5rem">' + nums + '</div>' +
+            '<textarea id="preview-textarea" class="flex-1 bg-transparent text-[#dae6d2] font-grotesk text-xs leading-relaxed outline-none resize-none overflow-auto whitespace-pre" spellcheck="false" style="min-height:70vh"></textarea>' +
             '</div>';
           var ta = document.getElementById('preview-textarea');
           if(ta) ta.value = d.content;
@@ -1040,4 +1040,3 @@ document.addEventListener('keydown', function(e){
     }
   }
 });
-
