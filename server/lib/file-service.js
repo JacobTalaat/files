@@ -10,6 +10,8 @@ const { httpError } = require('./errors');
 
 const execFileAsync = util.promisify(execFile);
 
+const BOOKMARKS_FILE = '.files-bookmarks.json';
+
 function createFileService(config) {
   const rootResolved = path.resolve(config.rootDir);
   const withinRoot = (candidate) => candidate === rootResolved || candidate.startsWith(rootResolved + path.sep);
@@ -71,7 +73,9 @@ function createFileService(config) {
   async function listFiles(relPath) {
     const abs = safe(relPath);
     const entries = await fsp.readdir(abs, { withFileTypes: true });
-    const files = await Promise.all(entries.map(async (entry) => {
+    const files = await Promise.all(entries
+      .filter((entry) => entry.name !== BOOKMARKS_FILE)
+      .map(async (entry) => {
       const stat = await fsp.stat(path.join(abs, entry.name));
       return {
         name: entry.name,
@@ -159,6 +163,7 @@ function createFileService(config) {
 
       for (const entry of entries) {
         if (results.length >= limit) break;
+        if (entry.name === BOOKMARKS_FILE) continue;
         const absPath = path.join(directory, entry.name);
         const nameLower = entry.name.toLowerCase();
         if (nameLower.includes(q)) {
@@ -320,18 +325,86 @@ function createFileService(config) {
     return `${dispositionType}; filename="${filename}"`;
   }
 
+  async function touch(relPath) {
+    const normalized = normalizeClientPath(relPath);
+    const abs = safe(normalized);
+    assertSimpleName(path.basename(abs));
+    try {
+      await fsp.stat(abs);
+      throw httpError(409, 'File already exists');
+    } catch (error) {
+      if (error.code === 'ENOENT') {
+        await fsp.writeFile(abs, '', 'utf8');
+        return { ok: true };
+      }
+      throw error;
+    }
+  }
+
+  async function copy(fromPath, toPath) {
+    const src = safe(normalizeClientPath(fromPath));
+    const dest = safe(normalizeClientPath(toPath));
+    if (dest === src) throw httpError(400, 'Source and destination are the same');
+    if (!withinRoot(dest)) throw httpError(403, 'Access denied');
+    try {
+      await fsp.access(dest);
+      throw httpError(409, 'Destination already exists');
+    } catch (error) {
+      if (error && error.code !== 'ENOENT') throw error;
+    }
+    await copyRecursive(src, dest);
+    return { ok: true };
+  }
+
+  async function statInfo(relPath) {
+    const normalized = normalizeClientPath(relPath);
+    const abs = safe(normalized);
+    const value = await fsp.stat(abs);
+    return {
+      name: path.basename(abs),
+      path: normalized,
+      isDir: value.isDirectory(),
+      size: value.isFile() ? value.size : null,
+      modified: value.mtime,
+      perms: modeToPermString(value.mode, value.isDirectory()),
+    };
+  }
+
+  async function loadCustomBookmarks() {
+    try {
+      const data = await fsp.readFile(path.join(rootResolved, BOOKMARKS_FILE), 'utf8');
+      return JSON.parse(data);
+    } catch {
+      return [];
+    }
+  }
+
+  async function saveCustomBookmarks(items) {
+    await fsp.writeFile(
+      path.join(rootResolved, BOOKMARKS_FILE),
+      JSON.stringify(items, null, 2),
+      'utf8',
+    );
+    return { ok: true };
+  }
+
   return {
     assertBatchPaths,
     assertSimpleName,
     safe,
     stat,
+    statInfo,
     listFiles,
     getDiskUsage,
     getBookmarks,
+    loadCustomBookmarks,
+    saveCustomBookmarks,
     search,
     getHash,
     getPreview,
     writeFile,
+    touch,
+    copy,
     remove,
     mkdir,
     rename,

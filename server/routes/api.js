@@ -115,7 +115,32 @@ function createApiRouter({ config, service, auth, loginLimiter }) {
   }));
 
   router.get('/bookmarks', auth, wrapAsync(async (req, res) => {
-    res.json(await service.getBookmarks(process.env.BOOKMARKS));
+    const envResult = await service.getBookmarks(process.env.BOOKMARKS);
+    const custom = await service.loadCustomBookmarks();
+    const seen = new Set(envResult.bookmarks.map((b) => b.path));
+    res.json({
+      bookmarks: [
+        ...envResult.bookmarks.map((b) => ({ ...b, custom: false })),
+        ...custom.filter((b) => !seen.has(b.path)).map((b) => ({ ...b, custom: true })),
+      ],
+    });
+  }));
+
+  router.post('/bookmarks', auth, wrapAsync(async (req, res) => {
+    const { action: bookmarkAction, path: bmPath, name: bmName } = req.body;
+    let custom = await service.loadCustomBookmarks();
+    if (bookmarkAction === 'add') {
+      if (!custom.find((b) => b.path === bmPath)) {
+        custom.push({ name: bmName || bmPath.split('/').pop(), path: bmPath });
+      }
+    } else if (bookmarkAction === 'remove') {
+      custom = custom.filter((b) => b.path !== bmPath);
+    } else if (bookmarkAction === 'rename') {
+      const entry = custom.find((b) => b.path === bmPath);
+      if (entry) entry.name = bmName;
+    }
+    await service.saveCustomBookmarks(custom);
+    res.json({ ok: true });
   }));
 
   router.get('/disk', auth, wrapAsync(async (req, res) => {
@@ -129,6 +154,10 @@ function createApiRouter({ config, service, auth, loginLimiter }) {
 
   router.get('/hash', auth, wrapAsync(async (req, res) => {
     res.json(await service.getHash(req.query.path));
+  }));
+
+  router.get('/stat', auth, wrapAsync(async (req, res) => {
+    res.json(await service.statInfo(req.query.path));
   }));
 
   router.get('/preview', auth, wrapAsync(async (req, res) => {
@@ -213,6 +242,14 @@ function createApiRouter({ config, service, auth, loginLimiter }) {
 
   router.post('/move', auth, wrapAsync(async (req, res) => {
     res.json(await service.move(req.body.fromPath, req.body.toPath));
+  }));
+
+  router.post('/copy', auth, wrapAsync(async (req, res) => {
+    res.json(await service.copy(req.body.fromPath, req.body.toPath));
+  }));
+
+  router.post('/touch', auth, wrapAsync(async (req, res) => {
+    res.json(await service.touch(req.body.path));
   }));
 
   router.put('/file', auth, wrapAsync(async (req, res) => {

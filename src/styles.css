@@ -60,6 +60,16 @@ button {
   cursor: pointer;
 }
 
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.list-row:focus-visible,
+.file-card:focus-visible {
+  outline-offset: -2px;
+}
+
 .material-symbols-outlined {
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
   line-height: 1;
@@ -485,6 +495,53 @@ select:hover,
   color: var(--accent);
 }
 
+.sidebar-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.bookmark-btn {
+  min-height: 32px;
+  padding: 0 8px;
+  font-size: 16px;
+}
+
+.bookmark-btn.active {
+  color: var(--accent);
+}
+
+.sidebar-link-shell {
+  display: flex;
+  align-items: center;
+}
+
+.sidebar-link-shell .sidebar-link {
+  flex: 1;
+}
+
+.sidebar-remove-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  min-height: 28px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.sidebar-link-shell:hover .sidebar-remove-btn {
+  opacity: 1;
+}
+
+.sidebar-remove-btn:hover {
+  color: var(--danger);
+}
+
 .sidebar-head p,
 .muted-copy {
   margin: 0;
@@ -652,7 +709,7 @@ select:hover,
 .list-header,
 .list-row {
   display: grid;
-  grid-template-columns: 36px minmax(0, 1.4fr) 110px 150px 100px 160px;
+  grid-template-columns: 36px minmax(0, 1.4fr) 110px 150px 160px;
   gap: 14px;
   align-items: center;
 }
@@ -1042,6 +1099,12 @@ input[type="checkbox"] {
   padding: 0 14px;
 }
 
+.properties-shell {
+  width: min(100%, 520px);
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
 .modal-actions {
   display: flex;
   justify-content: flex-end;
@@ -1100,6 +1163,43 @@ input[type="checkbox"] {
 .log-row {
   padding: 12px 0;
   border-bottom: 1px solid rgba(57, 73, 55, 0.35);
+}
+
+.transfers-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.transfers-table th {
+  text-align: left;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.transfers-table td {
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(57, 73, 55, 0.35);
+  vertical-align: top;
+}
+
+.transfer-time {
+  color: var(--muted);
+  font-family: 'Space Grotesk', sans-serif;
+  white-space: nowrap;
+  padding-right: 18px;
+  width: 120px;
+}
+
+.transfer-op {
+  color: var(--accent);
+  font-family: 'Space Grotesk', sans-serif;
+  letter-spacing: 0.04em;
 }
 
 @media (max-width: 1200px) {
